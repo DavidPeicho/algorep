@@ -1,0 +1,3 @@
+VPATH=src
+
+algorep: $(OBJS)
