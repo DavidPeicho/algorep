@@ -1,21 +1,35 @@
-CC=g++
-CXXFLAGS=-Wall -Wextra -Werror -std=c++14 -pedantic -I$(INCLUDE_FLDR)
+CC		= mpic++
+CXXFLAGS= -Wall -Wextra -Werror -std=c++14 -pedantic -fPIC -I$(INCLUDE_FLDR)
+LDLIBS 	= -l$(LIB_NAME)
+LDFLAGS = -L.
 
 SRC_FLDR=src
 SAMPLE_FLDR=sample
 INCLUDE_FLDR=include
 FOLDERS=$(SAMPLE_FLDR) $(SRC_FLDR)
 
+LIB_NAME=algorep
 SUM_BINARY=$(addprefix $(SAMPLE_FLDR)/, map_reduce_sum/sum)
 
-VPATH=$(SRC_FLDR)
+LIB_OBJS=src/data/allocator.o src/algorep.o
 
-algorep: $(OBJS)
+#VPATH=$(SRC_FLDR);$(SRC_FLDR)/data
 
-$(SUM_BINARY): $(SUM_BINARY).o
+lib$(LIB_NAME).so: $(LIB_OBJS)
+	$(CC) $(CXXFLAGS) -shared -o $@ $^
+
+##
+# Samples
+##
+
+$(SUM_BINARY): lib$(LIB_NAME).so $(SUM_BINARY).o
+
+##
+# Misc
+##
 
 clean:
-	$(RM) $(SRC_OBJS)
+	$(RM) lib$(LIB_NAME).so $(LIB_OBJS)
 	$(RM) $(SUM_BINARY).o $(SUM_BINARY)
 
 format:
