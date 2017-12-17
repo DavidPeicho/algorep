@@ -13,4 +13,12 @@ namespace algorep
 
     return id;
   }
+
+  void
+  Memory::release()
+  {
+    for (auto &pair : this->data_)
+      pair.second.clear();
+  }
+
 } // namespace algorep

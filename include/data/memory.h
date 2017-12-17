@@ -12,6 +12,9 @@ namespace algorep
       std::string
       reserve(int node_rank, int nb_bytes);
 
+      void
+      release();
+
     public:
       inline std::vector<uint8_t>&
       get(const std::string& id)

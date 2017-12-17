@@ -24,8 +24,7 @@ namespace algorep
       const char *buffer = str.c_str();
       size_t nb_bytes = str.length() + 1; // Do not forget the '\0'
 
-      return MPI_Isend(buffer, nb_bytes, MPI_BYTE, dest, tag,
-                       MPI_COMM_WORLD, &request);
+      return send<char>(buffer, nb_bytes, dest, tag, request);
     }
 
     template<typename T>
@@ -60,15 +59,5 @@ namespace algorep
       *out = new T[nb_bytes];
       return message::rec_sync<T>(dest, tag, nb_bytes, *out);
     }
-
-    /*inline int
-    rec_sync(int dest, int tag, std::string& out)
-    {
-      std::vector<char> data;
-      int return_code = rec_sync<char>(dest, tag, data);
-
-      out = std::string(data.begin(), data.end());
-      return return_code;
-    }*/
   } // namespace algorep
 } // namespace algorep

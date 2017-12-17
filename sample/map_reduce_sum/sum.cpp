@@ -5,14 +5,15 @@ using Allocator = algorep::Allocator;
 
 int test(Allocator& allocator)
 {
-  int toto = 5;
-  auto my_variable = allocator.reserve<int>(1, &toto);
+  int toto[5] = {5, 4, 3, 2, 1};
+  auto my_variable = allocator.reserve<int>(5, toto);
 
   std::cout << "Allocation done!" << std::endl;
 
   auto *read = allocator.read<int>(my_variable);
 
-  std::cout << "Result = " << *read << std::endl;
+  for (unsigned i = 0; i < 5; ++i)
+    std::cout << "Result = " << *(read + i) << std::endl;
 
   delete[] read;
 

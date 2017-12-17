@@ -17,7 +17,7 @@ namespace algorep
     int nb_nodes = 0;
     MPI_Comm_size(MPI_COMM_WORLD, &nb_nodes);
 
-    Allocator allocator(nb_nodes);
+    Allocator allocator(nb_nodes - 1, 12);
 
     if (rank == 0)
       return callback(allocator);
@@ -54,7 +54,7 @@ namespace algorep
 
           const auto &data = memory.get(std::string(id));
 
-          std::cout << "Reading on child: " << ((int*)&data[0])[0] << std::endl;
+          std::cout << "Allocation on Child : " << rank << std::endl;
 
           // Sends data to the master.
           MPI_Request req;

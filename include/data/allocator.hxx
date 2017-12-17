@@ -1,4 +1,5 @@
 #include <cstdlib>
+#include <cstring>
 #include <mpi/mpi.h>
 
 #include <message.h>
@@ -19,76 +20,108 @@ namespace algorep
   Element<T>*
   Allocator::reserve(size_t nb_elements, const T *elt)
   {
-    size_t type_size = sizeof (T);
-    unsigned long long nb_bytes = type_size * nb_elements;
+    size_t nb_bytes = sizeof (T) * nb_elements;
+    nb_bytes = nb_bytes;
 
+    std::cout << "nb nodes " << this->nb_nodes_ << std::endl;
+
+    std::vector<std::tuple<unsigned int, size_t, size_t>> nodes;
     // First, we check if the size of the allocation can fit
     // on a single node.
     int i = 0;
+    size_t start_idx = 0;
+    size_t free_elt = nb_elements;
     for (; i < this->nb_nodes_; ++i )
     {
-      const auto mem = this->memory_per_node_[i];
-      if (nb_bytes <= mem)
+      elt = elt;
+      auto max = (this->memory_per_node_[i] / sizeof (T));
+      if (max < 1)
+        continue;
+
+      if (max >= free_elt)
+      {
+        nodes.push_back(std::make_tuple(i + 1, start_idx, start_idx + free_elt - 1));
         break;
+      }
+
+      nodes.push_back(std::make_tuple(i + 1, start_idx, start_idx + max - 1));
+      free_elt -= max;
+      start_idx += max;
     }
 
-    // The data can fit in a single node, we make the allocation.
-    if (i != this->nb_nodes_)
+    if (nodes.size() == 0)
+      return nullptr;
+
+    auto *result = new Element<T>(nb_elements);
+    // Sends allocation messages to each node containing
+    // a part of the data (the data can be on only one node).
+    for (const auto& node : nodes)
     {
-      // The master is node 0, we skip it.
-      i += 1;
+      const auto node_id = std::get<0>(node);
+      const auto &lower = std::get<1>(node);
+      const auto &upper = std::get<2>(node);
+
+      std::cout << node_id << " | " << lower << ", " << upper << std::endl;
+
+      // Computes the number of bytes to send to the node.
+      size_t bytes = sizeof (T) * (upper - lower + 1);
 
       MPI_Request req;
-      message::send<T>(elt, nb_bytes, i, TAGS::ALLOCATION, req);
-
-      // Wait for allocation to be done on node.
-      MPI_Status status;
-      MPI_Probe(i, TAGS::ALLOCATION, MPI_COMM_WORLD, &status);
-
-      int str_len = 0;
-      char *id = new char[str_len];
-
-      MPI_Get_count(&status, MPI_BYTE, &str_len);
-      message::rec_sync<char>(i, TAGS::ALLOCATION, str_len, id);
-
-      auto element = new Element<T>(nb_elements);
-      element->addId(std::string(id), std::make_tuple(0, 0));
-
-      delete[] id;
-
-      // Returns a newly created Element, which encapsulate an allocation
-      // on the network. However, note that the allocation may have not been
-      // performed yet.
-      return element;
+      message::send<T>(elt + lower, bytes, node_id, TAGS::ALLOCATION, req);
     }
 
-    return nullptr;
+    // Waits until every allocation is done.
+    // Waiting here may give better throughput than just
+    // waiting in the previous loop after a call to `send'.
+    for (const auto& node : nodes)
+    {
+      const auto node_id = std::get<0>(node);
+      const auto &lower = std::get<1>(node);
+      const auto &upper = std::get<2>(node);
+
+      char *id = nullptr;
+      message::rec_sync(node_id, TAGS::ALLOCATION, &id);
+
+      result->addId(std::string(id), std::make_tuple(lower, upper));
+    }
+
+    return result;
   }
 
   template <typename T>
   T*
   Allocator::read(const Element<T> *elt)
   {
-    //auto *result = new T[elt->getNbValues()];
+    auto *result = new T[elt->getNbValues()];
+
     // The allocations is not over yet, we will have to wait
     // for it to complete.
     const auto &vars = elt->getVariables();
     for (const auto &pair : vars)
     {
-      std::cout << "var part " << std::endl;
       int dest = getRankFromId(pair.first);
+      std::cout << dest << std::endl;
 
       // Asks the `dest' slave for a read.
       MPI_Request req;
       message::send(pair.first, dest, TAGS::READ, req);
 
-      T *result = nullptr;
-      message::rec_sync<T>(dest, TAGS::READ, &result);
-      return result;
+      // The result of the read is save in the `read' pointer.
+      T *read = nullptr;
+      message::rec_sync<T>(dest, TAGS::READ, &read);
+
+      const auto &lower_bound = std::get<0>(pair.second);
+      size_t count = (std::get<1>(pair.second) - lower_bound) + 1;
+
+      std::memcpy(result + lower_bound, read, count * sizeof (T));
+
+      delete[] read;
     }
 
+    std::cout << "called" << std::endl;
+
     // Hopefully, RVO is here to speed up the process.
-    return nullptr;
+    return result;
   }
 
 } // namespace algorep
