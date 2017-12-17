@@ -1,4 +1,5 @@
 #include <algorep.h>
+#include <message.h>
 
 namespace algorep
 {
@@ -9,8 +10,13 @@ namespace algorep
   }
 
   void
-  release()
+  release(Allocator& allocator)
   {
+    MPI_Request req;
+
+    for (int i = 1; i < allocator.getNbNodes(); ++i)
+      message::send(nullptr, i, TAGS::QUIT, req);
+
     MPI_Finalize();
   }
 }  // namespace algorep

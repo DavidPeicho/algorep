@@ -1,51 +1,63 @@
 #pragma once
 
+#include <vector>
+
 #include <mpi/mpi.h>
 
 namespace algorep
 {
   namespace message
   {
-    //
-    // Sending integer value(s).
-    //
+    template <typename T>
     inline int
-    send(const int *buffer, size_t nb_elements,
+    send(const T *buffer, size_t nb_bytes,
         int dest, int tag, MPI_Request& request)
     {
-      return MPI_Isend(buffer, nb_elements, MPI_INT, dest, tag,
-                       MPI_COMM_WORLD, &request);
-    }
-    //
-    // Sending float value(s).
-    //
-    inline int
-    send(const float *buffer, size_t nb_elements,
-        int dest, int tag, MPI_Request& request)
-    {
-      return MPI_Isend(buffer, nb_elements, MPI_FLOAT, dest, tag,
-                       MPI_COMM_WORLD, &request);
-    }
-    //
-    // Sending double value(s).
-    //
-    inline int
-    send(const double *buffer, size_t nb_elements,
-        int dest, int tag, MPI_Request& request)
-    {
-      return MPI_Isend(buffer, nb_elements, MPI_DOUBLE, dest, tag,
+      return MPI_Isend(buffer, nb_bytes, MPI_BYTE, dest, tag,
                        MPI_COMM_WORLD, &request);
     }
 
-    //
-    // Sending size_t value(s).
-    //
     inline int
-    send(const size_t *buffer, size_t nb_elements,
-        int dest, int tag, MPI_Request& request)
+    send(const std::string& str, int dest,
+         int tag, MPI_Request& request)
     {
-      return MPI_Isend(buffer, nb_elements, MPI_UNSIGNED_LONG_LONG, dest, tag,
+      const char *buffer = str.c_str();
+      size_t nb_bytes = str.length() + 1; // Do not forget the '\0'
+
+      return MPI_Isend(buffer, nb_bytes, MPI_BYTE, dest, tag,
                        MPI_COMM_WORLD, &request);
     }
+
+    template<typename T>
+    inline int
+    rec_sync(int dest, int tag, int bytes, T *out)
+    {
+      return MPI_Recv(out, bytes, MPI_BYTE, dest,
+                      tag, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    template<typename T>
+    inline int
+    rec_sync(int dest, int tag, T **out)
+    {
+      MPI_Status status;
+      MPI_Probe(dest, tag, MPI_COMM_WORLD, &status);
+
+      int nb_bytes = 0;
+      MPI_Get_count(&status, MPI_BYTE, &nb_bytes);
+
+      *out = new T[nb_bytes];
+      return message::rec_sync<T>(dest, tag, nb_bytes, *out);
+    }
+
+    /*inline int
+    rec_sync(int dest, int tag, std::string& out)
+    {
+      std::vector<char> data;
+      int return_code = rec_sync<char>(dest, tag, data);
+
+      out = std::string(data.begin(), data.end());
+      return return_code;
+    }*/
   } // namespace algorep
 } // namespace algorep

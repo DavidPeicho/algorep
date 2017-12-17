@@ -15,7 +15,7 @@ namespace algorep
   run(const std::function<T(Allocator&)> callback);
 
   void
-  release();
+  release(Allocator& allocator);
 
 }
 

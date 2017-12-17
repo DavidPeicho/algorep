@@ -3,7 +3,11 @@
 
 namespace algorep
 {
-  class BaseElement { };
+  class BaseElement
+  {
+    public:
+      using Type = int;
+  };
 
   template <typename T>
   class Element : public BaseElement
@@ -14,17 +18,28 @@ namespace algorep
     public:
       Element(size_t nb_values)
             : nb_values_{nb_values}
-            , allocated_{false}
       { }
 
     public:
       inline void
       addId(const std::string& id, const std::tuple<size_t, size_t>& bounds)
       {
-        this.var_[id] = bounds;
+        this->vars_[id] = bounds;
       }
 
     public:
+      inline const std::unordered_map<std::string, std::tuple<size_t, size_t>>&
+      getVariables() const
+      {
+        return this->vars_;
+      }
+
+      inline size_t
+      getNbValues() const
+      {
+        return this->nb_values_;
+      }
+
       inline bool
       isAllocated()
       {
@@ -33,7 +48,6 @@ namespace algorep
 
     private:
       size_t nb_values_;
-      bool allocated_;
 
       std::unordered_map<std::string, std::tuple<size_t, size_t>> vars_;
   };

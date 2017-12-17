@@ -7,6 +7,7 @@ namespace algorep
     ALLOCATION = 0,
     READ,
     WRITE,
-    FREE
+    FREE,
+    QUIT
   };
 } // namespace algorep
