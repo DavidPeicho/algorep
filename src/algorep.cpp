@@ -13,9 +13,9 @@ namespace algorep
   release(Allocator& allocator)
   {
     MPI_Request req;
-
     for (int i = 1; i < allocator.getNbNodes(); ++i)
-      message::send(nullptr, i, TAGS::QUIT, req);
+      MPI_Isend(NULL, 0, MPI_BYTE, i, TAGS::QUIT,
+                MPI_COMM_WORLD, &req);
 
     MPI_Finalize();
   }

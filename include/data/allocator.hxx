@@ -75,9 +75,13 @@ namespace algorep
     const auto &vars = elt->getVariables();
     for (const auto &pair : vars)
     {
+      std::cout << "var part " << std::endl;
       int dest = getRankFromId(pair.first);
+
+      // Asks the `dest' slave for a read.
       MPI_Request req;
       message::send(pair.first, dest, TAGS::READ, req);
+
       T *result = nullptr;
       message::rec_sync<T>(dest, TAGS::READ, &result);
       return result;

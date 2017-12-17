@@ -38,6 +38,17 @@ namespace algorep
 
     template<typename T>
     inline int
+    rec_sync(int dest, int tag, MPI_Status &status, T **out)
+    {
+      int nb_bytes = 0;
+      MPI_Get_count(&status, MPI_BYTE, &nb_bytes);
+
+      *out = new T[nb_bytes];
+      return message::rec_sync<T>(dest, tag, nb_bytes, *out);
+    }
+
+    template<typename T>
+    inline int
     rec_sync(int dest, int tag, T **out)
     {
       MPI_Status status;

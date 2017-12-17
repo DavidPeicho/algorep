@@ -49,9 +49,22 @@ namespace algorep
         }
         case TAGS::READ:
         {
+          char *id = nullptr;
+          message::rec_sync(0, TAGS::READ, status, &id);
+
+          const auto &data = memory.get(std::string(id));
+
+          std::cout << "Reading on child: " << ((int*)&data[0])[0] << std::endl;
+
+          // Sends data to the master.
+          MPI_Request req;
+          message::send(&data[0], data.size(), 0, TAGS::READ, req);
+
+          delete[] id;
           break;
         }
         case TAGS::QUIT:
+          MPI_Finalize();
           std::exit(0);
           break;
       }
