@@ -1,6 +1,6 @@
-#include <algorep.h>
-#include <iostream>
 #include <mpi/mpi.h>
+
+#include <algorep.h>
 
 namespace algorep
 {
@@ -19,8 +19,14 @@ namespace algorep
     if (rank == 0)
       return callback(allocator);
 
+    Memory memory;
+
     while (true)
     {
+      // TODO:
+      // * Handle allocation (do not forget to set the variable ID).
+      // * Handle read
+      // * Handle write
       break;
     }
 

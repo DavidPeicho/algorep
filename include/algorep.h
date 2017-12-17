@@ -3,6 +3,7 @@
 #include <functional>
 
 #include <data/allocator.h>
+#include <data/memory.h>
 
 namespace algorep
 {
