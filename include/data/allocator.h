@@ -7,15 +7,10 @@
 
 namespace algorep
 {
-  namespace
-  {
-    constexpr unsigned long long MAX_MEMORY = 512 * 1024 * 1024;
-  }
-
   class Allocator
   {
     public:
-      Allocator(int nb_nodes, unsigned long long max_memory = MAX_MEMORY);
+      Allocator(int nb_nodes, unsigned long long max_memory);
 
     public:
       template <typename T>

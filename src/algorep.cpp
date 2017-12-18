@@ -12,10 +12,10 @@ namespace algorep
   void
   release(Allocator& allocator)
   {
+    // Sends `quit' message to children
     MPI_Request req;
-    for (int i = 0; i < allocator.getNbNodes() + 1; ++i)
-      MPI_Isend(NULL, 0, MPI_BYTE, i, TAGS::QUIT,
-                MPI_COMM_WORLD, &req);
+    for (int i = 0; i < allocator.getNbNodes(); ++i)
+      MPI_Isend(NULL, 0, MPI_BYTE, i + 1, TAGS::QUIT, MPI_COMM_WORLD, &req);
 
     MPI_Finalize();
   }

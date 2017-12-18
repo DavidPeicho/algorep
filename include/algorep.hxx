@@ -7,9 +7,57 @@
 
 namespace algorep
 {
+  namespace
+  {
+    constexpr static uint8_t FAIL_STR = 0;
+
+    void
+    onAllocation(MPI_Status &status, Memory &memory, int rank)
+    {
+      MPI_Request req;
+      int bytes = 0;
+      MPI_Get_count(&status, MPI_BYTE, &bytes);
+
+      // Allocation failed, we do not save it, and we return a fail.
+      if (bytes == MPI_UNDEFINED)
+      {
+        message::send<uint8_t>(&FAIL_STR, 1, 0, TAGS::ALLOCATION, req);
+        return;
+      }
+
+      // Allocates the data on the cluster.
+      auto id = memory.reserve(rank, bytes);
+      message::rec_sync<uint8_t>(0, TAGS::ALLOCATION, bytes, &memory.get(id)[0]);
+      // Sends an acknowledge to the master.
+      message::send(id, 0, TAGS::ALLOCATION, req);
+    }
+
+    void
+    onRead(MPI_Status &status, const Memory &memory)
+    {
+      char *id = nullptr;
+      message::rec_sync(0, TAGS::READ, status, &id);
+
+      // Sends the data to the master.
+      MPI_Request req;
+      const auto &data = memory.getConst(std::string(id));
+      message::send(&data[0], data.size(), 0, TAGS::READ, req);
+
+      delete[] id;
+    }
+
+    void
+    onQuit(Memory &memory)
+    {
+      memory.release();
+      MPI_Finalize();
+      std::exit(0);
+    }
+  }
+
   template <typename T>
   T
-  run(const std::function<T(Allocator&)> callback)
+  run(const std::function<T(Allocator&)> callback, size_t max_memory)
   {
     int rank = 0;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
@@ -17,7 +65,7 @@ namespace algorep
     int nb_nodes = 0;
     MPI_Comm_size(MPI_COMM_WORLD, &nb_nodes);
 
-    Allocator allocator(nb_nodes - 1, 12);
+    Allocator allocator(nb_nodes, max_memory);
 
     if (rank == 0)
       return callback(allocator);
@@ -33,44 +81,18 @@ namespace algorep
       switch (status.MPI_TAG)
       {
         case TAGS::ALLOCATION:
-        {
-          int bytes = 0;
-          MPI_Get_count(&status, MPI_BYTE, &bytes);
-          if ( bytes != MPI_UNDEFINED )
-          {
-            // Allocates the data on the cluster.
-            auto id = memory.reserve(rank, bytes);
-            message::rec_sync<uint8_t>(0, TAGS::ALLOCATION, bytes, &memory.get(id)[0]);
-            // Sends an acknowledge to the master.
-            MPI_Request req;
-            message::send(id, 0, TAGS::ALLOCATION, req);
-          }
+          onAllocation(status, memory, rank);
           break;
-        }
         case TAGS::READ:
-        {
-          char *id = nullptr;
-          message::rec_sync(0, TAGS::READ, status, &id);
-
-          const auto &data = memory.get(std::string(id));
-
-          std::cout << "Allocation on Child : " << rank << std::endl;
-
-          // Sends data to the master.
-          MPI_Request req;
-          message::send(&data[0], data.size(), 0, TAGS::READ, req);
-
-          delete[] id;
+          onRead(status, memory);
           break;
-        }
+        case TAGS::WRITE:
+          break;
         case TAGS::QUIT:
-          MPI_Finalize();
-          std::exit(0);
+          onQuit(memory);
           break;
       }
       // TODO:
-      // * Handle allocation (do not forget to set the variable ID).
-      // * Handle read
       // * Handle write
     }
 

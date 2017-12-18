@@ -22,6 +22,12 @@ namespace algorep
         return this->data_[id];
       }
 
+      inline const std::vector<uint8_t>&
+      getConst(const std::string& id) const
+      {
+        return this->data_.at(id);
+      }
+
     private:
       std::unordered_map<std::string, std::vector<uint8_t>> data_;
   };

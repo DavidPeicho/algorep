@@ -23,8 +23,6 @@ namespace algorep
     size_t nb_bytes = sizeof (T) * nb_elements;
     nb_bytes = nb_bytes;
 
-    std::cout << "nb nodes " << this->nb_nodes_ << std::endl;
-
     std::vector<std::tuple<unsigned int, size_t, size_t>> nodes;
     // First, we check if the size of the allocation can fit
     // on a single node.
@@ -61,8 +59,6 @@ namespace algorep
       const auto &lower = std::get<1>(node);
       const auto &upper = std::get<2>(node);
 
-      std::cout << node_id << " | " << lower << ", " << upper << std::endl;
-
       // Computes the number of bytes to send to the node.
       size_t bytes = sizeof (T) * (upper - lower + 1);
 
@@ -83,6 +79,11 @@ namespace algorep
       message::rec_sync(node_id, TAGS::ALLOCATION, &id);
 
       result->addId(std::string(id), std::make_tuple(lower, upper));
+
+      size_t bytes = sizeof (T) * (upper - lower + 1);
+      // TODO: normally, we should check that every allocation
+      // has succeeded.
+      this->memory_per_node_[node_id - 1] -= bytes;
     }
 
     return result;
@@ -100,7 +101,6 @@ namespace algorep
     for (const auto &pair : vars)
     {
       int dest = getRankFromId(pair.first);
-      std::cout << dest << std::endl;
 
       // Asks the `dest' slave for a read.
       MPI_Request req;
@@ -117,8 +117,6 @@ namespace algorep
 
       delete[] read;
     }
-
-    std::cout << "called" << std::endl;
 
     // Hopefully, RVO is here to speed up the process.
     return result;
