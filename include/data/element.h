@@ -1,3 +1,5 @@
+#pragma once
+
 #include <tuple>
 #include <unordered_map>
 
@@ -6,19 +8,12 @@ namespace algorep
   class BaseElement
   {
     public:
-      using Type = int;
-  };
-
-  template <typename T>
-  class Element : public BaseElement
-  {
-    public:
-      using Type = T;
-
-    public:
-      Element(size_t nb_values)
+      BaseElement(size_t nb_values, unsigned int atom_size)
             : nb_values_{nb_values}
+            , atom_size_{atom_size}
       { }
+
+      ~BaseElement() { };
 
     public:
       inline void
@@ -40,15 +35,24 @@ namespace algorep
         return this->nb_values_;
       }
 
-      inline bool
-      isAllocated()
+      inline unsigned int
+      getAtomSize() const
       {
-        return this.allocated_;
+        return this->atom_size_;
       }
 
-    private:
+    protected:
       size_t nb_values_;
-
+      unsigned int atom_size_;
       std::unordered_map<std::string, std::tuple<size_t, size_t>> vars_;
+  };
+
+  template <typename T>
+  class Element : public BaseElement
+  {
+    public:
+      Element(size_t nb_values)
+          : BaseElement(nb_values, sizeof (T))
+      { }
   };
 }

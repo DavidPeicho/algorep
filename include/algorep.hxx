@@ -35,6 +35,7 @@ namespace algorep
     void
     onRead(MPI_Status &status, const Memory &memory)
     {
+      // Gets back ID sent by the master.
       char *id = nullptr;
       message::rec_sync(0, TAGS::READ, status, &id);
 
@@ -52,6 +53,19 @@ namespace algorep
       memory.release();
       MPI_Finalize();
       std::exit(0);
+    }
+
+    void
+    onFree(MPI_Status &status, Memory &memory)
+    {
+      // Gets back ID sent by the master.
+      char *id = nullptr;
+      message::rec_sync(0, TAGS::FREE, status, &id);
+
+      // Frees the memory associated to the `id' ID.
+      memory.release(std::string(id));
+
+      delete[] id;
     }
   }
 
@@ -77,7 +91,6 @@ namespace algorep
     {
       // Gets back informaton about *any* message.
       MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
-
       switch (status.MPI_TAG)
       {
         case TAGS::ALLOCATION:
@@ -87,6 +100,9 @@ namespace algorep
           onRead(status, memory);
           break;
         case TAGS::WRITE:
+          break;
+        case TAGS::FREE:
+          onFree(status, memory);
           break;
         case TAGS::QUIT:
           onQuit(memory);

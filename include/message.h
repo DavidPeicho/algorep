@@ -27,6 +27,16 @@ namespace algorep
       return send<char>(buffer, nb_bytes, dest, tag, request);
     }
 
+    inline int
+    send_sync(const std::string& str, int dest, int tag)
+    {
+      const char *buffer = str.c_str();
+      size_t nb_bytes = str.length() + 1; // Do not forget the '\0'
+
+      return MPI_Send(buffer, nb_bytes, MPI_BYTE,
+                      dest, tag, MPI_COMM_WORLD);
+    }
+
     template<typename T>
     inline int
     rec_sync(int dest, int tag, int bytes, T *out)

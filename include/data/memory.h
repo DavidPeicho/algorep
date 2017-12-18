@@ -15,6 +15,9 @@ namespace algorep
       void
       release();
 
+      void
+      release(const std::string &id);
+
     public:
       inline std::vector<uint8_t>&
       get(const std::string& id)

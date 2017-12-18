@@ -25,7 +25,7 @@ namespace algorep
       update();
 
       void
-      free();
+      free(BaseElement *elt);
 
     public:
       inline int

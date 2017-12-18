@@ -32,8 +32,10 @@ check(Allocator &allocator,
       break;
   }
 
+  // Frees the network allocated array.
   delete[] read;
-  delete my_variable;
+  // Frees local copy on the process.
+  allocator.free(my_variable);
 
   unsigned int status = !!(i == size);
   std::cout << "[Status]: "

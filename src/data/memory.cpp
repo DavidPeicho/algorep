@@ -21,4 +21,13 @@ namespace algorep
       pair.second.clear();
   }
 
+  void
+  Memory::release(const std::string &id)
+  {
+    if (this->data_.count(id))
+    {
+      this->data_[id].clear();
+      this->data_.erase(id);
+    }
+  }
 } // namespace algorep

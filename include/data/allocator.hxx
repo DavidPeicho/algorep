@@ -95,8 +95,6 @@ namespace algorep
   {
     auto *result = new T[elt->getNbValues()];
 
-    // The allocations is not over yet, we will have to wait
-    // for it to complete.
     const auto &vars = elt->getVariables();
     for (const auto &pair : vars)
     {
@@ -113,13 +111,12 @@ namespace algorep
       const auto &lower_bound = std::get<0>(pair.second);
       size_t count = (std::get<1>(pair.second) - lower_bound) + 1;
 
+      // Copies the array from it's lower bound index.
       std::memcpy(result + lower_bound, read, count * sizeof (T));
 
       delete[] read;
     }
 
-    // Hopefully, RVO is here to speed up the process.
     return result;
   }
-
 } // namespace algorep
