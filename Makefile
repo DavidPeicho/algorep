@@ -1,6 +1,6 @@
-CC		= mpic++
-CXXFLAGS= -Wall -Wextra -Werror -std=c++14 -pedantic -g -fPIC -I$(INCLUDE_FLDR)
-LDLIBS 	= -l$(LIB_NAME)
+CXX = mpic++
+CXXFLAGS = -Wall -Wextra -Werror -std=c++14 -pedantic -g -fPIC -I$(INCLUDE_FLDR)
+LDLIBS = -l$(LIB_NAME)
 LDFLAGS = -L.
 
 SRC_FLDR=src
@@ -16,7 +16,7 @@ LIB_OBJS=src/data/allocator.o src/algorep.o src/data/memory.o
 #VPATH=$(SRC_FLDR);$(SRC_FLDR)/data
 
 lib$(LIB_NAME).so: $(LIB_OBJS)
-	$(CC) $(CXXFLAGS) -shared -o $@ $^
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^
 
 ##
 # Samples
