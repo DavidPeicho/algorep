@@ -13,6 +13,13 @@ namespace algorep
     constexpr static uint8_t FAIL_STR = 0;
 
     void
+    setPack(size_t clock, int size, std::tuple<size_t, int> &out)
+    {
+      std::get<0>(out) = clock;
+      std::get<1>(out) = size;
+    }
+
+    void
     onAllocation(MPI_Status& status, Memory& memory, int rank)
     {
       MPI_Request req;
@@ -34,7 +41,9 @@ namespace algorep
       // This is used in the `onWrite' callback.
       // This will allow to handle old write messages
       // that come after newer messages.
-      memory.history()[id] = std::make_tuple(0, 0);
+      memory.history()[id] = std::make_tuple(
+        std::make_tuple(0, 0), std::make_tuple(0, 0)
+      );
 
       // Sends an acknowledge to the master.
       message::send(id, 0, TAGS::ALLOCATION, req);
@@ -67,8 +76,8 @@ namespace algorep
       message::rec_sync<uint8_t>(0, TAGS::WRITE, status, &bytes, &data);
 
       // TODO: Handle error, which should not happen.
-      // In the case we have 0 bytes, it means that some data
-      // has been lost on the network.
+      // In the case we have 0 bytes, it means
+      // that some data has been lost on the network.
       if (bytes == 0) return;
 
       int data_size = bytes - constant::ID_LEN - sizeof (size_t);
@@ -83,43 +92,31 @@ namespace algorep
       std::cout << "received id: " << id << std::endl;
 
       auto &var = memory.get(id);
+      // Contains the oldest largest message received.
+      auto &old_pack = std::get<0>(memory.history()[id]);
+      auto &new_pack = std::get<1>(memory.history()[id]);
 
-      auto &tuple = memory.history()[id];
-      auto &old_clock = std::get<0>(tuple);
-      auto &old_size = std::get<1>(tuple);
-
-      // We can safely write the data directly, without being
-      // afraid of erasing message arrived in a wrong order.
-      if (old_size == 0)
+      // Message is the newest, we can safely erase
+      // previously written data.
+      if (clock > std::get<0>(new_pack))
       {
         std::memcpy(&var[0], data, data_size);
-        old_clock = clock;
-        old_size = data_size;
+        setPack(clock, data_size, new_pack);
+        // A completed flush has been done,
+        // we can reset the history.
+        if ((size_t)data_size == var.capacity())
+          setPack(0, 0, old_pack);
+
         delete[] data;
         return;
       }
 
-      // The arriving message was sent after the previous
-      // one saved in the history.
-      if (clock > old_clock)
+      if (data_size > std::get<1>(old_pack) || clock > std::get<0>(old_pack))
       {
-        std::memcpy(&var[0], data, data_size);
-        // A completed flush has been done,
-        // we can reset the history.
-        /*if (data_size == var.capacity())
-        {
-          old_size = 0;
-          old_clock = 0;
-        }*/
-      }
-      else
-      {
-        if (data_size > old_size)
-        {
-          int bytes = (data_size - old_size);
-          std::memcpy(&var[0] + bytes, data, bytes);
-        }
-
+        const auto &start = std::get<1>(new_pack);
+        std::memcpy(&var[0] + start, data + start, data_size - start);
+        if (clock < std::get<0>(old_pack) || std::get<0>(old_pack) == 0)
+          setPack(clock, data_size, old_pack);
       }
 
       delete[] data;

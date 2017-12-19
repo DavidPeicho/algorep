@@ -6,6 +6,12 @@
 
 namespace algorep
 {
+  namespace
+  {
+    // Contains the clock of a message, as well as its size.
+    using Pack = std::tuple<size_t, int>;
+  }
+
   class Memory
   {
     public:
@@ -31,7 +37,7 @@ namespace algorep
       return this->data_.at(id);
     }
 
-    inline std::unordered_map<std::string, std::tuple<size_t, int>>&
+    inline std::unordered_map<std::string, std::tuple<Pack, Pack>>&
     history()
     {
       return this->history_;
@@ -39,6 +45,6 @@ namespace algorep
 
     private:
     std::unordered_map<std::string, std::vector<uint8_t>> data_;
-    std::unordered_map<std::string, std::tuple<size_t, int>> history_;
+    std::unordered_map<std::string, std::tuple<Pack, Pack>> history_;
   };
 }  // namespace algorep
