@@ -35,6 +35,6 @@ clean:
 	$(RM) sample/sum sample/sum.o
 
 format:
-	find $(FOLDERS) -name "*.cpp" -o -name "*.h" | xargs clang-format -i
+	find sample/ include/ src/ -name "*.cpp" -o -name "*.h" -o -name "*.hxx" | xargs clang-format -i
 
 .PHONY: clean format

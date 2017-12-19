@@ -3,12 +3,8 @@
 int
 run(Allocator& allocator)
 {
-  auto int_comp = [](auto a, auto b)
-  {
-    return a == b;
-  };
-  auto float_comp = [](auto a, auto b)
-  {
+  auto int_comp = [](auto a, auto b) { return a == b; };
+  auto float_comp = [](auto a, auto b) {
     constexpr float EPSILON = 0.000001;
     return a >= b - EPSILON && a <= b + EPSILON;
   };
@@ -34,14 +30,14 @@ run(Allocator& allocator)
   // the slaves wait indefinitely.
   algorep::release(allocator);
 
-  std::cout << "Overview : "
-            << tests_passed << "/" << 5 << " passed!" << std::endl;
+  std::cout << "Overview : " << tests_passed << "/" << 5 << " passed!"
+            << std::endl;
 
   return 1;
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
   algorep::init(argc, argv);
 

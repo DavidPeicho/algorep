@@ -17,12 +17,11 @@ namespace algorep
   void
   Memory::release()
   {
-    for (auto &pair : this->data_)
-      pair.second.clear();
+    for (auto& pair : this->data_) pair.second.clear();
   }
 
   void
-  Memory::release(const std::string &id)
+  Memory::release(const std::string& id)
   {
     if (this->data_.count(id))
     {
@@ -30,4 +29,4 @@ namespace algorep
       this->data_.erase(id);
     }
   }
-} // namespace algorep
+}  // namespace algorep

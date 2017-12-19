@@ -13,7 +13,7 @@ namespace algorep
   }
 
   void
-  init(int argc, char **argv);
+  init(int argc, char** argv);
 
   template <typename T>
   T
@@ -21,7 +21,6 @@ namespace algorep
 
   void
   release(Allocator& allocator);
-
 }
 
 #include <algorep.hxx>

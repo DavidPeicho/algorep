@@ -3,27 +3,32 @@
 namespace algorep
 {
   Allocator::Allocator(int nb_nodes, unsigned long long max_memory)
-            : nb_nodes_{nb_nodes - 1}
+      : nb_nodes_{nb_nodes - 1}
   {
     for (int i = 0; i < nb_nodes_; ++i)
       this->memory_per_node_.push_back(max_memory);
   }
 
   void
-  Allocator::free(BaseElement *elt)
+  Allocator::free(BaseElement* elt)
   {
-    const auto &vars = elt->getVariables();
-    for (const auto &pair : vars)
+    const auto& ids = elt->getIds();
+    const auto& bounds = elt->getBounds();
+
+    for (size_t i = 0; i < ids.size(); ++i)
     {
-      int dest = getRankFromId(pair.first);
-      const auto &lower = std::get<0>(pair.second);
-      const auto &upper = std::get<1>(pair.second);
+      const auto& id = ids[i];
+      const auto& bound = bounds[i];
+
+      int dest = getRankFromId(id);
+      const auto& lower = std::get<0>(bound);
+      const auto& upper = std::get<1>(bound);
 
       // Asks the `dest' slave for a write.
       // This function will return as soon as the `pair.first'
       // string is copied, this will not wait until the receiver
       // acknowledge it, which is exactly what we want.
-      message::send_sync(pair.first, dest, TAGS::FREE);
+      message::send_sync(id, dest, TAGS::FREE);
 
       // We basically consider that every message will arrive one day.
       // We can safely consider the memory as freed.
@@ -32,4 +37,4 @@ namespace algorep
     }
     delete elt;
   }
-} // namespace algorep
+}  // namespace algorep

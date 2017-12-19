@@ -10,4 +10,4 @@ namespace algorep
     FREE,
     QUIT
   };
-} // namespace algorep
+}  // namespace algorep

@@ -5,12 +5,8 @@ run(Allocator& allocator)
 {
   constexpr unsigned int NB_TESTS = 100;
 
-  auto int_comp = [](auto a, auto b)
-  {
-    return a == b;
-  };
-  auto float_comp = [](auto a, auto b)
-  {
+  auto int_comp = [](auto a, auto b) { return a == b; };
+  auto float_comp = [](auto a, auto b) {
     constexpr float EPSILON = 0.0001;
     return a >= b - EPSILON && a <= b + EPSILON;
   };
@@ -33,18 +29,17 @@ run(Allocator& allocator)
 
   algorep::release(allocator);
 
-  std::cout << "\nOverview : " << tests_passed
-            << "/" << nb_total_tests << " passed!" << std::endl;
+  std::cout << "\nOverview : " << tests_passed << "/" << nb_total_tests
+            << " passed!" << std::endl;
 
   return 1;
 }
 
 int
-main(int argc, char **argv)
+main(int argc, char** argv)
 {
   algorep::init(argc, argv);
 
   const auto& callback = std::function<int(Allocator&)>(run);
   run(callback);
-
 }
