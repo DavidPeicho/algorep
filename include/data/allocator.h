@@ -39,13 +39,13 @@ namespace algorep
     void
     free(BaseElement* elt);
 
-    void
+    Allocator*
     map(const BaseElement* elt, unsigned int data_type,
         unsigned int callback_id);
 
     template <typename T>
     T*
-    reduce(const Element<T>* elt, T init_val = 0);
+    reduce(const Element<T>* elt, unsigned int callback_id, T init_val = 0);
 
     public:
     inline void

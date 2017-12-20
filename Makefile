@@ -5,17 +5,14 @@ LDLIBS = -l$(LIB_NAME)
 LDFLAGS = -L.
 
 LIB_NAME=algorep
-
 LIB_OBJS=src/data/allocator.o src/algorep.o src/data/memory.o
-
-#VPATH=$(SRC_FLDR);$(SRC_FLDR)/data
 
 lib$(LIB_NAME).so: $(LIB_OBJS)
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^
 
-##
-# Samples
-##
+###############################################################################
+# 							       TEST SUITE
+###############################################################################
 
 # This is gross because we do not use the implicit rules of Make.
 # However, this is used to simplify the usage of Make.
@@ -27,9 +24,15 @@ test/print: lib$(LIB_NAME).so test/print.o
 test/print_random: lib$(LIB_NAME).so test/print_random.o
 test/map: lib$(LIB_NAME).so test/map.o
 
-##
-# Misc
-##
+###############################################################################
+# 								    SAMPLES
+###############################################################################
+
+sample/map_reduce: lib$(LIB_NAME).so sample/map_reduce.o
+
+###############################################################################
+# 									 MISC
+###############################################################################
 
 clean:
 	$(RM) lib$(LIB_NAME).so $(LIB_OBJS)

@@ -138,8 +138,6 @@ namespace algorep
     void
     onMap(MPI_Status& status, Memory& memory)
     {
-      memory = memory;
-
       char* data_cstr = nullptr;
       message::rec_sync(0, TAGS::MAP, status, &data_cstr);
 
@@ -191,22 +189,90 @@ namespace algorep
       }
 
       // Sends an acknowledge to the master.
-      message::send<uint8_t>(&constant::SUCCESS, 1, 0, TAGS::MAP, req);
+      message::send_sync<uint8_t>(&constant::SUCCESS, 1, 0, TAGS::MAP);
+      delete[] data_cstr;
     }
+
   }
 
   void
   onReduce(MPI_Status& status, Memory& memory)
   {
-    //  64 bytes                    N
-    // [ACCUMULATOR]   [...node list to reduce...]
-    memory = memory;
+    static constexpr unsigned int UINT_LEN = sizeof (unsigned int);
+    // Sends the data with this layout:
+    //  64 bytes       sizeof (uint)      sizeof (uint)        N
+    // [ACCUMULATOR] [...DATA_TYPE...] [...CALLBACK_ID...]  [nodes]
     uint8_t *data = nullptr;
     int bytes = 0;
-    message::rec_sync<uint8_t>(0, TAGS::REDUCE, status, &bytes, &data);
+    message::rec_sync<uint8_t>(
+      status.MPI_SOURCE, TAGS::REDUCE, status, &bytes, &data
+    );
 
-    std::string nodes_list((char*)(data + 64));
+    std::string nodes_list((char*)(data + 64 + UINT_LEN * 2));
     std::cout << nodes_list << std::endl;
+    std::string curr_id = nodes_list;
+    size_t sep = nodes_list.find('-');
+    if (sep != std::string::npos) curr_id = curr_id.substr(0, sep + 1);
+
+    auto &vec = memory.get(curr_id);
+    auto* var_data = &vec[0];
+    size_t nb_elt = vec.capacity();
+    unsigned int data_type = *((unsigned int*)(data + 64));
+    unsigned int call_id = *((unsigned int*)(data + 64 + UINT_LEN));
+
+    size_t nb_bytes_type = DataTypeToSize[data_type];
+    switch (data_type)
+    {
+      case DataType::USHORT:
+        applyReduce<unsigned short>(var_data, nb_elt, call_id, data);
+        break;
+      case DataType::SHORT:
+        applyReduce<short>(var_data, nb_elt, call_id, data);
+        break;
+      case DataType::UINT:
+        applyReduce<unsigned int>(var_data, nb_elt, call_id, data);
+        break;
+      case DataType::INT:
+        applyReduce<int>(var_data, nb_elt, call_id, data);
+        break;
+      case DataType::ULONG:
+        applyReduce<unsigned long>(var_data, nb_elt, call_id, data);
+        break;
+      case DataType::LONG:
+        applyReduce<long>(var_data, nb_elt, call_id, data);
+        break;
+      case DataType::FLOAT:
+        applyReduce<float>(var_data, nb_elt, call_id, data);
+        break;
+      case DataType::DOUBLE:
+        applyReduce<double>(var_data, nb_elt, call_id, data);
+        break;
+    }
+
+    // The id is only composed of a '\0'. We are on the last node
+    // of the chain, we can send the result to the master.
+    if (sep == std::string::npos)
+    {
+      // Sends an acknowledge to the master.
+      message::send_sync<uint8_t>(data, nb_bytes_type, 0, TAGS::REDUCE);
+      delete[] data;
+      return;
+    }
+
+    // We are now going to remove the next node
+    // from the nodes list, and send it the message.
+    const char *cstr = nodes_list.c_str() + sep + 1;
+    int next_dest = strtol(cstr, NULL, 10);
+    size_t nb_bytes = nodes_list.length() - (sep + 1);
+    std::memcpy(data + 64 + UINT_LEN * 2, cstr, nb_bytes);
+    // We are on the previous last node.
+
+    // Sends the message to the next node of the chain.
+    message::send_sync<uint8_t>(
+      data, 64 + UINT_LEN * 2 + nb_bytes, next_dest, TAGS::REDUCE
+    );
+
+    delete[] data;
   }
 
   void

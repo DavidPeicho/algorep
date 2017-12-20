@@ -33,7 +33,7 @@ namespace algorep
     delete elt;
   }
 
-  void
+  Allocator*
   Allocator::map(const BaseElement* elt, unsigned int data_type,
                  unsigned int callback_id)
   {
@@ -55,6 +55,8 @@ namespace algorep
       uint8_t status = 0;
       message::rec_sync_ack(dest, TAGS::MAP, status);
     }
+
+    return this;
   }
 
 }  // namespace algorep

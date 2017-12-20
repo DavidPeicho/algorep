@@ -217,9 +217,13 @@ namespace algorep
 
   template <typename T>
   T*
-  Allocator::reduce(const Element<T>* elt, T init_val)
+  Allocator::reduce(const Element<T>* elt,
+                    unsigned int callback_id, T init_val)
   {
+    static constexpr unsigned int UINT_LEN = sizeof (unsigned int);
+    static constexpr unsigned int DATA_LEN = 2 * UINT_LEN + 64;
     const auto& ids = elt->getIds();
+
     if (ids.size() == 0) return nullptr;
 
     // We send the message to the first cluster.
@@ -232,29 +236,33 @@ namespace algorep
     // but with this technique, we can later update our policy to allocate
     // the memory without breaking the `reduce()' method.
     std::string nodes_list;
-    for (size_t i = 1; i < ids.size(); ++i)
+    for (size_t i = 0; i < ids.size(); ++i)
     {
-      const int target = getRankFromId(ids[i]);
       if (i == ids.size() - 1)
-        nodes_list += std::to_string(target);
+        nodes_list += ids[i];
       else
-        nodes_list += std::to_string(target) + "-";
+        nodes_list += ids[i] + "-";
     }
 
     // Sends the data with this layout:
-    //  64 bytes                   N
-    // [ACCUMULATOR]   [...node list to reduce...]
-    size_t nb_bytes = 64 + nodes_list.length() + 1;
+    //  64 bytes       sizeof (uint)      sizeof (uint)        N
+    // [ACCUMULATOR] [...DATA_TYPE...] [...CALLBACK_ID...]  [nodes]
+    size_t nb_bytes = DATA_LEN + nodes_list.length() + 1;
     std::vector<uint8_t> data(nb_bytes);
 
     // Copies 64 bytes with initial accumulator value.
     std::memset(&data[0], 0, 64);
     std::memcpy(&data[0], &init_val, sizeof (T));
-    std::memcpy(&data[0] + 64, nodes_list.c_str(), nodes_list.length());
+    // Copies data type
+    std::memcpy(&data[0] + 64, &callback::ElementType<T>::value, UINT_LEN);
+    std::memcpy(&data[0] + 64 + UINT_LEN, &callback_id, UINT_LEN);
+    std::memcpy(
+      &data[0] + 64 + 2 * UINT_LEN, nodes_list.c_str(), nodes_list.length() + 1
+    );
 
     // Sends message to first node of the list.
     MPI_Request req;
-    message::send<uint8_t>(&data[0], data.capacity(), dest, TAGS::REDUCE, req);
+    message::send<uint8_t>(&data[0], nb_bytes, dest, TAGS::REDUCE, req);
 
     // Waits for the message from the last node of the list.
     T* read = nullptr;
