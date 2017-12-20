@@ -3,7 +3,7 @@
 
 #include <mpi/mpi.h>
 
-#include <data/constants.h>
+#include <constant/constants.h>
 #include <data/tag_data.h>
 #include <message.h>
 
@@ -11,6 +11,8 @@ namespace algorep
 {
   namespace
   {
+    // TODO: We could actually cache this value,
+    // instead of recomputing it.
     int
     getRankFromId(const std::string& id)
     {

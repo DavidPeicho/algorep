@@ -8,6 +8,7 @@ namespace algorep
     READ,
     WRITE,
     FREE,
+    MAP,
     QUIT
   };
 }  // namespace algorep

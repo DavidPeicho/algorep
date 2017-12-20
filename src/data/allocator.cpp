@@ -32,4 +32,29 @@ namespace algorep
     }
     delete elt;
   }
+
+  void
+  Allocator::map(const BaseElement* elt,
+                 unsigned int data_type, unsigned int callback_id)
+  {
+    const auto& ids = elt->getIds();
+    for (size_t i = 0; i < ids.size(); ++i)
+    {
+      const int dest = getRankFromId(ids[i]);
+      std::string id = ids[i] + "-" + std::to_string(callback_id);
+      id += "-" + std::to_string(data_type);
+
+      MPI_Request req;
+      message::send(id, dest, TAGS::MAP, req);
+    }
+
+    for (size_t i = 0; i < ids.size(); ++i)
+    {
+      const int dest = getRankFromId(ids[i]);
+
+      uint8_t status = 0;
+      message::rec_sync_ack(dest, TAGS::MAP, status);
+    }
+  }
+
 }  // namespace algorep

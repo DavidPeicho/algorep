@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include <constant/callback.h>
 #include <data/element.h>
 
 namespace algorep
@@ -43,7 +44,7 @@ namespace algorep
     free(BaseElement* elt);
 
     void
-    update();
+    map(const BaseElement *elt, unsigned int data_type, unsigned int callback_id);
 
     public:
 

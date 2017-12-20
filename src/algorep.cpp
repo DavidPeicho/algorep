@@ -1,6 +1,8 @@
 #include <algorep.h>
 #include <message.h>
 
+#include <constant/callback.h>
+
 namespace algorep
 {
   namespace
@@ -136,6 +138,49 @@ namespace algorep
 
       delete[] id;
     }
+
+    void
+    onMap(MPI_Status& status, Memory &memory)
+    {
+      memory = memory;
+
+      char* data_cstr = nullptr;
+      message::rec_sync(0, TAGS::MAP, status, &data_cstr);
+
+      std::string data(data_cstr);
+
+      MPI_Request req;
+      if (data.size() == 0)
+      {
+        // Sends an acknowledge to the master.
+        message::send<uint8_t>(&constant::FAIL, 1, 0, TAGS::MAP, req);
+        return;
+      }
+
+      size_t sep = data.find('-');
+      size_t sep2 = data.find('-', sep + 1);
+      std::string id = data.substr(0, sep);
+
+      unsigned int callback_id = strtol(data_cstr + sep + 1, NULL, 10);
+      unsigned int data_type = strtol(data_cstr + sep2 + 1, NULL, 10);
+
+      auto *var_data = &memory.get(id)[0];
+      switch (data_type)
+      {
+        case DataType::INT:
+          int *test = (int *)var_data;
+          int nb_elt = memory.get(id).capacity() / sizeof(int);
+          for (int i = 0; i < nb_elt; ++i)
+            algorep::callback::CALLBACK_LIST[callback_id](&test[i]);
+      }
+
+      std::cout << id << std::endl;
+      std::cout << callback_id << std::endl;
+      std::cout << data_type << std::endl;
+
+      // Sends an acknowledge to the master.
+      message::send<uint8_t>(&constant::SUCCESS, 1, 0, TAGS::MAP, req);
+    }
   }
 
   void
@@ -181,6 +226,9 @@ namespace algorep
           break;
         case TAGS::FREE:
           onFree(status, memory);
+          break;
+        case TAGS::MAP:
+          onMap(status, memory);
           break;
         case TAGS::QUIT:
           onQuit(memory);

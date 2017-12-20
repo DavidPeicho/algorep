@@ -16,17 +16,25 @@ test()
     std::cout << "Result = " << *(read + i) << std::endl;
 
   // Write test
-  int toto2[5] = {1, 2, 3, 8, 2};
+  int toto2[5] = {-1, 2, -3, 8, 2};
   allocator->write(my_variable, toto2);
 
   auto* read2 = allocator->read<int>(my_variable);
   for (int i = 0; i < 5; ++i)
     std::cout << "Result 2 = " << read2[i] << std::endl;
 
+  allocator->map(my_variable, algorep::DataType::INT, 12);
+
+  delete[] read;
+  delete[] read2;
+
+  read2 = allocator->read<int>(my_variable);
+  for (int i = 0; i < 5; ++i)
+    std::cout << "Result 2 = " << read2[i] << std::endl;
+
   // Frees the network allocated array.
   allocator->free(my_variable);
   // Frees local copy on the process.
-  delete[] read;
 
   // Super important call, forgeting this will make
   // the slaves wait indefinitely.
