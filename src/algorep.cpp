@@ -1,8 +1,6 @@
 #include <algorep.h>
 #include <message.h>
 
-#include <constant/callback.h>
-
 namespace algorep
 {
   namespace
@@ -164,19 +162,35 @@ namespace algorep
       unsigned int callback_id = strtol(data_cstr + sep + 1, NULL, 10);
       unsigned int data_type = strtol(data_cstr + sep2 + 1, NULL, 10);
 
+      size_t nb_elt = memory.get(id).capacity();
       auto *var_data = &memory.get(id)[0];
       switch (data_type)
       {
+        case DataType::USHORT:
+          applyCallback<unsigned short>(var_data, nb_elt, callback_id);
+          break;
+        case DataType::SHORT:
+          applyCallback<short>(var_data, nb_elt, callback_id);
+          break;
+        case DataType::UINT:
+          applyCallback<unsigned int>(var_data, nb_elt, callback_id);
+          break;
         case DataType::INT:
-          int *test = (int *)var_data;
-          int nb_elt = memory.get(id).capacity() / sizeof(int);
-          for (int i = 0; i < nb_elt; ++i)
-            algorep::callback::CALLBACK_LIST[callback_id](&test[i]);
+          applyCallback<int>(var_data, nb_elt, callback_id);
+          break;
+        case DataType::ULONG:
+          applyCallback<unsigned long>(var_data, nb_elt, callback_id);
+          break;
+        case DataType::LONG:
+          applyCallback<long>(var_data, nb_elt, callback_id);
+          break;
+        case DataType::FLOAT:
+          applyCallback<float>(var_data, nb_elt, callback_id);
+          break;
+        case DataType::DOUBLE:
+          applyCallback<double>(var_data, nb_elt, callback_id);
+          break;
       }
-
-      std::cout << id << std::endl;
-      std::cout << callback_id << std::endl;
-      std::cout << data_type << std::endl;
 
       // Sends an acknowledge to the master.
       message::send<uint8_t>(&constant::SUCCESS, 1, 0, TAGS::MAP, req);

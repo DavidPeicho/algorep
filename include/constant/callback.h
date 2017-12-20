@@ -46,6 +46,30 @@ namespace algorep
       }
     }
 
+    enum Type
+    {
+      S_ABS = 0,
+      I_ABS,
+      F_ABS,
+      D_ABS,
+      L_ABS,
+
+      S_NEGATE,
+      I_NEGATE,
+      F_NEGATE,
+      D_NEGATE,
+      L_NEGATE,
+
+      US_POW,
+      UI_POW,
+      UL_POW,
+      S_POW,
+      I_POW,
+      F_POW,
+      D_POW,
+      L_POW,
+    };
+
     static const Callback CALLBACK_LIST [18] =
     {
       (Callback)abs<short>,
@@ -54,19 +78,19 @@ namespace algorep
       (Callback)abs<double>,
       (Callback)abs<long>,
 
+      (Callback)negate<short>,
       (Callback)negate<int>,
       (Callback)negate<float>,
       (Callback)negate<double>,
       (Callback)negate<long>,
-      (Callback)negate<long long>,
 
       (Callback)pow<unsigned short>,
-      (Callback)pow<short>,
       (Callback)pow<unsigned int>,
+      (Callback)pow<unsigned long>,
+      (Callback)pow<short>,
       (Callback)pow<int>,
       (Callback)pow<float>,
       (Callback)pow<double>,
-      (Callback)pow<unsigned long>,
       (Callback)pow<long>,
     };
   }

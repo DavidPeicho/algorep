@@ -32,7 +32,7 @@ run()
   // the slaves wait indefinitely.
   algorep::finalize();
 
-  std::cout << "Overview : " << tests_passed << "/" << 5 << " passed!"
+  std::cout << "Summary : " << tests_passed << "/" << 5 << " passed!"
             << std::endl;
 
   return 1;

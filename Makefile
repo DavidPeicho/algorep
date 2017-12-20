@@ -22,7 +22,7 @@ lib$(LIB_NAME).so: $(LIB_OBJS)
 
 sample/print: lib$(LIB_NAME).so sample/print.o
 sample/print_random: lib$(LIB_NAME).so sample/print_random.o
-sample/sum: lib$(LIB_NAME).so sample/sum.o
+sample/map: lib$(LIB_NAME).so sample/map.o
 
 ##
 # Misc
@@ -32,7 +32,7 @@ clean:
 	$(RM) lib$(LIB_NAME).so $(LIB_OBJS)
 	$(RM) sample/print sample/print.o
 	$(RM) sample/print_random sample/print_random.o
-	$(RM) sample/sum sample/sum.o
+	$(RM) sample/map sample/map.o
 
 format:
 	find sample/ include/ src/ -name "*.cpp" -o -name "*.h" -o -name "*.hxx" | xargs clang-format -i
