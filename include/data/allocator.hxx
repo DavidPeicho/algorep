@@ -194,10 +194,18 @@ namespace algorep
       const auto &data = formatted[i];
       if (data.capacity() == 0) break;
 
-      MPI_Wait(&requests[i], MPI_STATUS_IGNORE);
+      // MPI_Wait(&requests[i], MPI_STATUS_IGNORE);
+      const int dest = getRankFromId(ids[i]);
+      // TODO: It would have been better to use a completely
+      // asynchronous system. However, it would need something
+      // such as a ThreadPool that does busy waiting, and I don't
+      // have that for now.
+      uint8_t status = 0;
+      message::rec_sync_ack(dest, TAGS::WRITE, status);
+
+      if (!status) return false;
     }
 
-    std::cout << "Sent clock: " << CLOCK << std::endl;
     CLOCK++;
     return true;
   }

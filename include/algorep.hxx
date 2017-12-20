@@ -10,8 +10,6 @@ namespace algorep
 {
   namespace
   {
-    constexpr static uint8_t FAIL_STR = 0;
-
     void
     setPack(size_t clock, int size, std::tuple<size_t, int> &out)
     {
@@ -29,7 +27,7 @@ namespace algorep
       // Allocation failed, we do not save it, and we return a fail.
       if (bytes == MPI_UNDEFINED)
       {
-        message::send<uint8_t>(&FAIL_STR, 1, 0, TAGS::ALLOCATION, req);
+        message::send<uint8_t>(&constant::FAIL, 1, 0, TAGS::ALLOCATION, req);
         return;
       }
 
@@ -78,7 +76,12 @@ namespace algorep
       // TODO: Handle error, which should not happen.
       // In the case we have 0 bytes, it means
       // that some data has been lost on the network.
-      if (bytes == 0) return;
+      MPI_Request req;
+      if (bytes == 0)
+      {
+        message::send<uint8_t>(&constant::FAIL, 1, 0, TAGS::WRITE, req);
+        return;
+      }
 
       int data_size = bytes - constant::ID_LEN - sizeof (size_t);
       int clock_offset = bytes - sizeof (size_t);
@@ -106,18 +109,18 @@ namespace algorep
         // we can reset the history.
         if ((size_t)data_size == var.capacity())
           setPack(0, 0, old_pack);
-
-        delete[] data;
-        return;
       }
-
-      if (data_size > std::get<1>(old_pack) || clock > std::get<0>(old_pack))
+      else if (data_size > std::get<1>(old_pack)
+               || clock > std::get<0>(old_pack))
       {
         const auto &start = std::get<1>(new_pack);
         std::memcpy(&var[0] + start, data + start, data_size - start);
         if (clock < std::get<0>(old_pack) || std::get<0>(old_pack) == 0)
           setPack(clock, data_size, old_pack);
       }
+
+      // Sends an acknowledge to the master.
+      message::send<uint8_t>(&constant::SUCCESS, 1, 0, TAGS::WRITE, req);
 
       delete[] data;
     }

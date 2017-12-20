@@ -35,6 +35,13 @@ namespace algorep
       return MPI_Send(buffer, nb_bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
     }
 
+    inline int
+    rec_sync_ack(int dest, int tag, uint8_t &out)
+    {
+      return MPI_Recv(&out, 1, MPI_BYTE, dest, tag,
+                      MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
     template <typename T>
     inline int
     rec_sync(int dest, int tag, int bytes, T* out)
@@ -74,7 +81,9 @@ namespace algorep
       int nb_bytes = 0;
       MPI_Get_count(&status, MPI_BYTE, &nb_bytes);
 
-      *out = new T[nb_bytes];
+      if (nb_bytes != 0)
+        *out = new T[nb_bytes];
+
       return message::rec_sync<T>(dest, tag, nb_bytes, *out);
     }
   }  // namespace algorep
