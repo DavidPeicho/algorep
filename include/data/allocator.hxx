@@ -141,7 +141,6 @@ namespace algorep
     // We will put the clock at the end of the message.
     // TODO: When data are to large, send a PRE_WRITE message
     // to avoid making a huge copy.
-    std::vector<MPI_Request> requests(ids.size());
     std::vector<std::vector<uint8_t>> formatted(ids.size());
     for (unsigned int i = 0; i < ids.size() && nb_elts > 0; ++i)
     {
@@ -160,7 +159,7 @@ namespace algorep
 
       formatted[i].reserve(data_bytes + sizeof (size_t) + constant::ID_LEN);
       // Copies the `data' pointer to `formatted'
-      std::memcpy(&formatted[i][0], data, data_bytes);
+      std::memcpy(&formatted[i][0], data + lower, data_bytes);
       // Copies the id at the end. The ID will never be more than 22 char.
       std::memset(&formatted[i][0] + data_bytes, 0, constant::ID_LEN);
       std::memcpy(&formatted[i][0] + data_bytes, id.c_str(), id.length());
@@ -182,7 +181,8 @@ namespace algorep
 
       const int dest = getRankFromId(ids[i]);
       // Asks the slave `dest' for a write.
-      message::send<uint8_t>(&data[0], data.capacity(), dest, TAGS::WRITE, requests[i]);
+      MPI_Request req;
+      message::send<uint8_t>(&data[0], data.capacity(), dest, TAGS::WRITE, req);
     }
 
     // This part is super important. If we return directly,

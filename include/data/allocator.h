@@ -11,7 +11,13 @@ namespace algorep
   class Allocator
   {
     public:
-    Allocator(int nb_nodes, unsigned long long max_memory);
+    static inline Allocator*
+    instance()
+    {
+      if (!instance_) instance_ = new Allocator();
+
+      return instance_;
+    }
 
     public:
     // TODO: add equivalent of malloc / calloc.
@@ -26,16 +32,35 @@ namespace algorep
     read(const Element<T>* elt);
 
     template <typename T>
+    T*
+    reduce(const Element<T>* elt);
+
+    template <typename T>
     bool
     write(const Element<T>* elt, const T* data, size_t nb_elts = 0);
 
     void
-    update();
-
-    void
     free(BaseElement* elt);
 
+    void
+    update();
+
     public:
+
+    inline void
+    setMaxMemory(size_t nb_bytes)
+    {
+      this->max_memory_ = nb_bytes;
+    }
+
+    inline void
+    setNbNodes(int nb_nodes)
+    {
+      this->nb_nodes_ = nb_nodes;
+      for (int i = 0; i < nb_nodes_; ++i)
+        this->memory_per_node_.push_back(this->max_memory_);
+    }
+
     inline int
     getNbNodes() const
     {
@@ -43,7 +68,15 @@ namespace algorep
     }
 
     private:
+    Allocator() : nb_nodes_(0), max_memory_(0) { }
+
+    private:
+    static Allocator *instance_;
+
+    private:
     int nb_nodes_;
+    size_t max_memory_;
+
     std::vector<unsigned long long> memory_per_node_;
   };
 }  // namespace algorep
