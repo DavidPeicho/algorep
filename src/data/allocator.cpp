@@ -2,7 +2,7 @@
 
 namespace algorep
 {
-  Allocator *Allocator::instance_ = nullptr;
+  Allocator* Allocator::instance_ = nullptr;
 
   void
   Allocator::free(BaseElement* elt)
@@ -34,8 +34,8 @@ namespace algorep
   }
 
   void
-  Allocator::map(const BaseElement* elt,
-                 unsigned int data_type, unsigned int callback_id)
+  Allocator::map(const BaseElement* elt, unsigned int data_type,
+                 unsigned int callback_id)
   {
     const auto& ids = elt->getIds();
     for (size_t i = 0; i < ids.size(); ++i)

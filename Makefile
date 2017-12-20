@@ -20,9 +20,12 @@ lib$(LIB_NAME).so: $(LIB_OBJS)
 # This is gross because we do not use the implicit rules of Make.
 # However, this is used to simplify the usage of Make.
 
-sample/print: lib$(LIB_NAME).so sample/print.o
-sample/print_random: lib$(LIB_NAME).so sample/print_random.o
-sample/map: lib$(LIB_NAME).so sample/map.o
+check: test/print test/print_random test/map
+	sh test/check.sh
+
+test/print: lib$(LIB_NAME).so test/print.o
+test/print_random: lib$(LIB_NAME).so test/print_random.o
+test/map: lib$(LIB_NAME).so test/map.o
 
 ##
 # Misc
@@ -30,11 +33,11 @@ sample/map: lib$(LIB_NAME).so sample/map.o
 
 clean:
 	$(RM) lib$(LIB_NAME).so $(LIB_OBJS)
-	$(RM) sample/print sample/print.o
-	$(RM) sample/print_random sample/print_random.o
-	$(RM) sample/map sample/map.o
+	$(RM) test/print sample/print.o
+	$(RM) test/print_random sample/print_random.o
+	$(RM) test/map sample/map.o
 
 format:
-	find sample/ include/ src/ -name "*.cpp" -o -name "*.h" -o -name "*.hxx" | xargs clang-format -i
+	find test/ include/ src/ -name "*.cpp" -o -name "*.h" -o -name "*.hxx" | xargs clang-format -i
 
 .PHONY: clean format

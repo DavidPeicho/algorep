@@ -3,7 +3,7 @@
 void
 run()
 {
-  auto *allocator = algorep::Allocator::instance();
+  auto* allocator = algorep::Allocator::instance();
 
   constexpr unsigned int NB_TESTS = 100;
 
@@ -31,8 +31,7 @@ run()
 
   algorep::finalize();
 
-  std::cout << "\nOverview : " << tests_passed << "/" << nb_total_tests
-            << " passed!" << std::endl;
+  summary(tests_passed, nb_total_tests, "> Print random <");
 }
 
 int

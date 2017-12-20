@@ -146,27 +146,31 @@ namespace algorep
     std::vector<std::vector<uint8_t>> formatted(ids.size());
     for (unsigned int i = 0; i < ids.size() && nb_elts > 0; ++i)
     {
-      const auto &id = ids[i];
+      const auto& id = ids[i];
       const auto& bound = bounds[i];
-      const auto &lower = std::get<0>(bound);
-      const auto &upper = std::get<1>(bound);
+      const auto& lower = std::get<0>(bound);
+      const auto& upper = std::get<1>(bound);
 
       size_t sub_nb_values = (upper - lower + 1);
-      size_t data_bytes = sizeof (T) * sub_nb_values;
+      size_t data_bytes = sizeof(T) * sub_nb_values;
       if (nb_elts <= sub_nb_values)
       {
-        data_bytes = sizeof (T) * nb_elts;
-        nb_elts = 0; // Makes the for loop stop after this iteration.
+        data_bytes = sizeof(T) * nb_elts;
+        nb_elts = 0;  // Makes the for loop stop after this iteration.
       }
 
-      formatted[i].reserve(data_bytes + sizeof (size_t) + constant::ID_LEN);
+      // Builds a new array to send, laying the data as follow:
+      //    N bytes      22 bytes   sizeof (size_t)
+      // [...Data...]   [...ID...]   [..Clock..]
+      formatted[i].reserve(data_bytes + sizeof(size_t) + constant::ID_LEN);
       // Copies the `data' pointer to `formatted'
       std::memcpy(&formatted[i][0], data + lower, data_bytes);
       // Copies the id at the end. The ID will never be more than 22 char.
       std::memset(&formatted[i][0] + data_bytes, 0, constant::ID_LEN);
       std::memcpy(&formatted[i][0] + data_bytes, id.c_str(), id.length());
       // Copies the clock at the end of the data
-      std::memcpy(&formatted[i][0] + data_bytes + constant::ID_LEN, &CLOCK, sizeof (size_t));
+      std::memcpy(&formatted[i][0] + data_bytes + constant::ID_LEN, &CLOCK,
+                  sizeof(size_t));
 
       nb_elts -= sub_nb_values;
     }
@@ -175,7 +179,7 @@ namespace algorep
     // to each node involved.
     for (size_t i = 0; i < ids.size(); ++i)
     {
-      const auto &data = formatted[i];
+      const auto& data = formatted[i];
       // The data are splitted linearly on clusters. If we find
       // a cluster that does not need data, we can safely assume
       // that the next ones are in the same state.
@@ -193,10 +197,9 @@ namespace algorep
     // to the nodes will be garbage.
     for (size_t i = 0; i < ids.size(); ++i)
     {
-      const auto &data = formatted[i];
+      const auto& data = formatted[i];
       if (data.capacity() == 0) break;
 
-      // MPI_Wait(&requests[i], MPI_STATUS_IGNORE);
       const int dest = getRankFromId(ids[i]);
       // TODO: It would have been better to use a completely
       // asynchronous system. However, it would need something
@@ -210,6 +213,54 @@ namespace algorep
 
     CLOCK++;
     return true;
+  }
+
+  template <typename T>
+  T*
+  Allocator::reduce(const Element<T>* elt, T init_val)
+  {
+    const auto& ids = elt->getIds();
+    if (ids.size() == 0) return nullptr;
+
+    // We send the message to the first cluster.
+    const int dest = getRankFromId(ids[0]);
+    const int last = getRankFromId(ids[ids.size() - 1]);
+
+    // We will also send a string containing the chain
+    // of every node to reach.
+    // For now, we only select cluster when the previous one is full,
+    // but with this technique, we can later update our policy to allocate
+    // the memory without breaking the `reduce()' method.
+    std::string nodes_list;
+    for (size_t i = 1; i < ids.size(); ++i)
+    {
+      const int target = getRankFromId(ids[i]);
+      if (i == ids.size() - 1)
+        nodes_list += std::to_string(target);
+      else
+        nodes_list += std::to_string(target) + "-";
+    }
+
+    // Sends the data with this layout:
+    //  64 bytes                   N
+    // [ACCUMULATOR]   [...node list to reduce...]
+    size_t nb_bytes = 64 + nodes_list.length() + 1;
+    std::vector<uint8_t> data(nb_bytes);
+
+    // Copies 64 bytes with initial accumulator value.
+    std::memset(&data[0], 0, 64);
+    std::memcpy(&data[0], &init_val, sizeof (T));
+    std::memcpy(&data[0] + 64, nodes_list.c_str(), nodes_list.length());
+
+    // Sends message to first node of the list.
+    MPI_Request req;
+    message::send<uint8_t>(&data[0], data.capacity(), dest, TAGS::REDUCE, req);
+
+    // Waits for the message from the last node of the list.
+    T* read = nullptr;
+    message::rec_sync<T>(last, TAGS::REDUCE, &read);
+
+    return read;
   }
 
 }  // namespace algorep

@@ -12,51 +12,40 @@
 
 using Allocator = algorep::Allocator;
 
-static size_t g_TEST_NB = 0;
-
 namespace
 {
   template <typename T>
   unsigned int
-  finishTest(bool success, Allocator &allocator,
-             algorep::Element<T> *var, T* read)
+  finishTest(bool success, Allocator& allocator, algorep::Element<T>* var,
+             T* read)
   {
     // Frees the network allocated array.
     delete[] read;
     // Frees local copy on the process.
     allocator.free(var);
-
-    unsigned int status = !!success;
-    std::cout << "[Status]: " << (success ? "PASSED" : "FAILED") << std::endl;
-
-    return status;
+    return !!success;
   }
 }
 
 template <typename T>
 unsigned int
-check_map(Allocator& allocator, std::vector<T>& in,
-unsigned int data_type, unsigned int callback_id,
-std::function<bool(T, T)> comp_func)
+check_map(Allocator& allocator, std::vector<T>& in, unsigned int data_type,
+          unsigned int callback_id, std::function<bool(T, T)> comp_func)
 {
   size_t size = in.size();
 
-  std::cout << "Test " << g_TEST_NB++ << " with size `"
-            << size << "'" << std::endl;
-
-  auto *my_var = allocator.reserve(in.size(), &in[0]);
+  auto* my_var = allocator.reserve(in.size(), &in[0]);
   allocator.map(my_var, data_type, callback_id);
 
-  auto *read = allocator.read(my_var);
+  auto* read = allocator.read(my_var);
   size_t i = 0;
-  for ( ; i < size; ++i)
+  for (; i < size; ++i)
   {
-    std::cout << read[i] << std::endl;
     algorep::callback::CALLBACK_LIST[callback_id](&in[i]);
     if (!comp_func(in[i], read[i])) break;
   }
 
-  return finishTest(i == size, allocator, my_var, read);
+  return finishTest<T>(i == size, allocator, my_var, read);
 }
 
 template <typename T>
@@ -66,12 +55,9 @@ check(Allocator& allocator, const std::vector<T>& expected,
 {
   size_t size = expected.size();
 
-  std::cout << "Test " << g_TEST_NB++ << " with size `" << size << "'"
-            << std::endl;
-
   // Makes allocation on the Algorep Allocator.
   auto* my_variable = allocator.reserve<T>(size, &expected[0]);
-  const auto* read = allocator.read<T>(my_variable);
+  auto* read = allocator.read<T>(my_variable);
 
   size_t i = 0;
   for (; i < size; ++i)
@@ -79,7 +65,7 @@ check(Allocator& allocator, const std::vector<T>& expected,
     if (!comp_func(expected[i], read[i])) break;
   }
 
-  return finishTest(i == size, allocator, my_variable, read);
+  return finishTest<T>(i == size, allocator, my_variable, read);
 }
 
 template <typename T>
@@ -97,8 +83,9 @@ check(Allocator& allocator, std::function<bool(T, T)> comp_func)
 }
 
 void
-summary(unsigned int passed, unsigned int total)
+summary(unsigned int passed, unsigned int total, const char* title)
 {
-  std::cout << "Summary : "
-            << passed << " / " << total << " passed!" << std::endl;
+  std::cout << title << std::endl;
+  std::cout << "Summary : " << passed << " / " << total << " passed!"
+            << std::endl;
 }

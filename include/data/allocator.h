@@ -33,10 +33,6 @@ namespace algorep
     read(const Element<T>* elt);
 
     template <typename T>
-    T*
-    reduce(const Element<T>* elt);
-
-    template <typename T>
     bool
     write(const Element<T>* elt, const T* data, size_t nb_elts = 0);
 
@@ -44,10 +40,14 @@ namespace algorep
     free(BaseElement* elt);
 
     void
-    map(const BaseElement *elt, unsigned int data_type, unsigned int callback_id);
+    map(const BaseElement* elt, unsigned int data_type,
+        unsigned int callback_id);
+
+    template <typename T>
+    T*
+    reduce(const Element<T>* elt, T init_val = 0);
 
     public:
-
     inline void
     setMaxMemory(size_t nb_bytes)
     {
@@ -69,10 +69,9 @@ namespace algorep
     }
 
     private:
-    Allocator() : nb_nodes_(0), max_memory_(0) { }
-
+    Allocator() : nb_nodes_(0), max_memory_(0) {}
     private:
-    static Allocator *instance_;
+    static Allocator* instance_;
 
     private:
     int nb_nodes_;

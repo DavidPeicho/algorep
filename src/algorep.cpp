@@ -6,7 +6,7 @@ namespace algorep
   namespace
   {
     void
-    setPack(size_t clock, int size, std::tuple<size_t, int> &out)
+    setPack(size_t clock, int size, std::tuple<size_t, int>& out)
     {
       std::get<0>(out) = clock;
       std::get<1>(out) = size;
@@ -34,9 +34,8 @@ namespace algorep
       // This is used in the `onWrite' callback.
       // This will allow to handle old write messages
       // that come after newer messages.
-      memory.history()[id] = std::make_tuple(
-        std::make_tuple(0, 0), std::make_tuple(0, 0)
-      );
+      memory.history()[id] =
+          std::make_tuple(std::make_tuple(0, 0), std::make_tuple(0, 0));
 
       // Sends an acknowledge to the master.
       message::send(id, 0, TAGS::ALLOCATION, req);
@@ -64,7 +63,7 @@ namespace algorep
       // The data lays out like this:
       //    N bytes      22 bytes   sizeof (size_t)
       // [...Data...]   [...ID...]   [..Clock..]
-      uint8_t *data = nullptr;
+      uint8_t* data = nullptr;
       int bytes = 0;
       message::rec_sync<uint8_t>(0, TAGS::WRITE, status, &bytes, &data);
 
@@ -78,17 +77,17 @@ namespace algorep
         return;
       }
 
-      int data_size = bytes - constant::ID_LEN - sizeof (size_t);
-      int clock_offset = bytes - sizeof (size_t);
+      int data_size = bytes - constant::ID_LEN - sizeof(size_t);
+      int clock_offset = bytes - sizeof(size_t);
 
       size_t clock = *((size_t*)(data + clock_offset));
-      const char* id_cstr = (char *)(data + data_size);
+      const char* id_cstr = (char*)(data + data_size);
       std::string id(id_cstr);
 
-      auto &var = memory.get(id);
+      auto& var = memory.get(id);
       // Contains the oldest largest message received.
-      auto &old_pack = std::get<0>(memory.history()[id]);
-      auto &new_pack = std::get<1>(memory.history()[id]);
+      auto& old_pack = std::get<0>(memory.history()[id]);
+      auto& new_pack = std::get<1>(memory.history()[id]);
 
       // Message is the newest, we can safely erase
       // previously written data.
@@ -98,13 +97,12 @@ namespace algorep
         setPack(clock, data_size, new_pack);
         // A completed flush has been done,
         // we can reset the history.
-        if ((size_t)data_size == var.capacity())
-          setPack(0, 0, old_pack);
+        if ((size_t)data_size == var.capacity()) setPack(0, 0, old_pack);
       }
-      else if (data_size > std::get<1>(old_pack)
-               || clock > std::get<0>(old_pack))
+      else if (data_size > std::get<1>(old_pack) ||
+               clock > std::get<0>(old_pack))
       {
-        const auto &start = std::get<1>(new_pack);
+        const auto& start = std::get<1>(new_pack);
         std::memcpy(&var[0] + start, data + start, data_size - start);
         if (clock < std::get<0>(old_pack) || std::get<0>(old_pack) == 0)
           setPack(clock, data_size, old_pack);
@@ -138,7 +136,7 @@ namespace algorep
     }
 
     void
-    onMap(MPI_Status& status, Memory &memory)
+    onMap(MPI_Status& status, Memory& memory)
     {
       memory = memory;
 
@@ -163,7 +161,7 @@ namespace algorep
       unsigned int data_type = strtol(data_cstr + sep2 + 1, NULL, 10);
 
       size_t nb_elt = memory.get(id).capacity();
-      auto *var_data = &memory.get(id)[0];
+      auto* var_data = &memory.get(id)[0];
       switch (data_type)
       {
         case DataType::USHORT:
@@ -198,6 +196,20 @@ namespace algorep
   }
 
   void
+  onReduce(MPI_Status& status, Memory& memory)
+  {
+    //  64 bytes                    N
+    // [ACCUMULATOR]   [...node list to reduce...]
+    memory = memory;
+    uint8_t *data = nullptr;
+    int bytes = 0;
+    message::rec_sync<uint8_t>(0, TAGS::REDUCE, status, &bytes, &data);
+
+    std::string nodes_list((char*)(data + 64));
+    std::cout << nodes_list << std::endl;
+  }
+
+  void
   init(int argc, char** argv)
   {
     MPI_Init(&argc, &argv);
@@ -212,9 +224,15 @@ namespace algorep
     int nb_nodes = 0;
     MPI_Comm_size(MPI_COMM_WORLD, &nb_nodes);
 
+    if (nb_nodes < 2)
+    {
+      std::string error = "number of nodes in cluster should be >= 2!";
+      throw std::invalid_argument("algorep: " + error);
+    }
+
     // As we are using a Master-Slave system, the Allocator simply uses
     // the ID 0 by default for the master, but it can easily be changed.
-    //Allocator allocator(nb_nodes, max_memory);
+    // Allocator allocator(nb_nodes, max_memory);
     Allocator::instance()->setMaxMemory(max_memory);
     Allocator::instance()->setNbNodes(nb_nodes - 1);
 
@@ -226,7 +244,7 @@ namespace algorep
     while (true)
     {
       // Gets back informaton about *any* message.
-      MPI_Probe(0, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
+      MPI_Probe(MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status);
       switch (status.MPI_TAG)
       {
         case TAGS::ALLOCATION:
@@ -244,6 +262,9 @@ namespace algorep
         case TAGS::MAP:
           onMap(status, memory);
           break;
+        case TAGS::REDUCE:
+          onReduce(status, memory);
+          break;
         case TAGS::QUIT:
           onQuit(memory);
           break;
@@ -254,7 +275,7 @@ namespace algorep
   void
   finalize()
   {
-    auto *allocator = Allocator::instance();
+    auto* allocator = Allocator::instance();
     // Sends `quit' message to children
     MPI_Request req;
     for (int i = 0; i < allocator->getNbNodes(); ++i)
@@ -266,7 +287,7 @@ namespace algorep
   void
   terminate()
   {
-    auto *allocator = Allocator::instance();
+    auto* allocator = Allocator::instance();
     delete allocator;
   }
 }  // namespace algorep

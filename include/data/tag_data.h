@@ -9,6 +9,7 @@ namespace algorep
     WRITE,
     FREE,
     MAP,
+    REDUCE,
     QUIT
   };
 }  // namespace algorep

@@ -32,8 +32,7 @@ run()
   // the slaves wait indefinitely.
   algorep::finalize();
 
-  std::cout << "Summary : " << tests_passed << "/" << 5 << " passed!"
-            << std::endl;
+  summary(tests_passed, 4, "> Print hardcoded <");
 
   return 1;
 }

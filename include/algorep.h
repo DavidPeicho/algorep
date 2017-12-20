@@ -14,9 +14,9 @@ namespace algorep
 
     template <typename T>
     inline void
-    applyCallback(uint8_t *input, size_t nb_elt, unsigned int call_id)
+    applyCallback(uint8_t* input, size_t nb_elt, unsigned int call_id)
     {
-      T *data = (T *)input;
+      T* data = (T*)input;
       nb_elt = nb_elt / sizeof(T);
 
       for (size_t i = 0; i < nb_elt; ++i)
