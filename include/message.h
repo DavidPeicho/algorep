@@ -6,7 +6,8 @@
 
 /**
  * @file message.h
- * @brief 
+ * @brief Contains wrapper above the OpenMPI API. This is used to simplify
+ * the overuse pattern (wait for number of bytes, apply sync receive).
  * @author David Peicho, Sarasvati Moutoucomarapoulé
  * @version 1.0
  * @date 2017-12-21
@@ -89,7 +90,6 @@ namespace algorep
       const char* buffer = str.c_str();
       size_t nb_bytes = str.length() + 1;  // Do not forget the '\0'
       return send_sync<char>(buffer, nb_bytes, dest, tag);
-      // return MPI_Send(buffer, nb_bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
     }
 
     /**

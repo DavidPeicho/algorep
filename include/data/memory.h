@@ -6,7 +6,7 @@
 
 /**
  * @file memory.h
- * @brief 
+ * @brief Encapsluates data regarding variable stores on a single slave.
  * @author David Peicho, Sarasvati Moutoucomarapoulé
  * @version 1.0
  * @date 2017-12-21
@@ -23,7 +23,7 @@ namespace algorep
   }
 
   /**
-   * @brief 
+   * @brief
    */
   class Memory
   {
@@ -81,9 +81,9 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Gets the history of all variables.
      *
-     * @return 
+     * @return
      */
     inline std::unordered_map<std::string, std::tuple<Pack, Pack>>&
     history()
@@ -98,7 +98,8 @@ namespace algorep
     std::unordered_map<std::string, std::vector<uint8_t>> data_;
 
     /**
-     * @brief 
+     * @brief This history map is used when dealing with messages
+     * that can be wrongly ordered, because of the asynchronous sending.
      */
     std::unordered_map<std::string, std::tuple<Pack, Pack>> history_;
   };

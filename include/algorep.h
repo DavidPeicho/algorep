@@ -8,7 +8,7 @@
 
 /**
  * @file algorep.h
- * @brief 
+ * @brief Entry point of the API.
  * @author David Peicho, Sarasvati Moutoucomarapoulé
  * @version 1.0
  * @date 2017-12-21
@@ -65,7 +65,7 @@ namespace algorep
   }
 
   /**
-   * @brief Initialize environment.
+   * @brief Initialize the environment.
    *
    * @param argc Number of arguments.
    * @param argv Arguments.
@@ -77,7 +77,7 @@ namespace algorep
    * @brief Execution of a node (react to messages).
    *
    * @param callback Master behavior.
-   * @param max_memory Maximum memory per node.
+   * @param max_memory Maximum memory per slave.
    */
   void
   run(const std::function<void()> callback, size_t max_memory = MAX_MEMORY);

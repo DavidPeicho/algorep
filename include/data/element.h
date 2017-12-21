@@ -5,7 +5,9 @@
 
 /**
  * @file element.h
- * @brief 
+ * @brief File containing the main object of the API: Element.
+ * Giving to the user an `Element` allows to hide the data kept by the master
+ * regarding the slave. It also improves the cleanness of the API.
  * @author David Peicho, Sarasvati Moutoucomarapoulé
  * @version 1.0
  * @date 2017-12-21
@@ -15,12 +17,10 @@ namespace algorep
 {
   namespace
   {
-    // TODO: We could actually cache this value,
-    // instead of recomputing it.
     /**
      * @brief Get the rank of a node from its identifier.
      *
-     * @param id Identifier.
+     * @param id String identifier.
      *
      * @return Rank of the node.
      */
@@ -32,7 +32,8 @@ namespace algorep
   }
 
   /**
-   * @brief 
+   * @brief This class allows us to make type-erasure when freing a variable
+   * of type Element<T>.
    */
   class BaseElement
   {
@@ -114,7 +115,7 @@ namespace algorep
     }
 
     /**
-     * @brief Get size of one element.
+     * @brief Get size of one element. This is only used when freeing memory.
      *
      * @return Size of one element.
      */
@@ -152,7 +153,9 @@ namespace algorep
   };
 
   /**
-   * @brief 
+   * @brief Contains data regarding chunks on slaves. This is the main object
+   * used in the API, and allows the Allocator to keep track of how variables
+   * are dispatched on the network.
    *
    * @tparam T
    */

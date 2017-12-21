@@ -9,7 +9,7 @@
 
 /**
  * @file allocator.h
- * @brief 
+ * @brief Base file describing the Allocator API.
  * @author David Peicho, Sarasvati Moutoucomarapoulé
  * @version 1.0
  * @date 2017-12-21
