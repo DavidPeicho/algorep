@@ -29,7 +29,7 @@ test/reduce: lib$(LIB_NAME).so test/reduce.o
 # 								    SAMPLES
 ###############################################################################
 
-sample/map_reduce: lib$(LIB_NAME).so sample/map_reduce.o
+sample/simple_map_reduce: lib$(LIB_NAME).so sample/simple_map_reduce.o
 
 ###############################################################################
 # 									 MISC
@@ -41,6 +41,7 @@ clean:
 	$(RM) test/print_random sample/print_random.o
 	$(RM) test/map sample/map.o
 	$(RM) test/reduce sample/reduce.o
+	$(RM) sample/simple_map_reduce sample/simple_map_reduce.o
 
 format:
 	find test/ include/ src/ -name "*.cpp" -o -name "*.h" -o -name "*.hxx" | xargs clang-format -i

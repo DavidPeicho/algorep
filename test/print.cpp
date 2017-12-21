@@ -3,7 +3,7 @@
 int
 run()
 {
-  auto *allocator = algorep::Allocator::instance();
+  auto* allocator = algorep::Allocator::instance();
 
   auto int_comp = [](auto a, auto b) { return a == b; };
   auto float_comp = [](auto a, auto b) {

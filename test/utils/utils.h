@@ -4,6 +4,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <ctime>
 #include <functional>
 #include <iostream>
 #include <vector>
@@ -29,16 +30,14 @@ namespace
 
 template <typename T>
 unsigned int
-check_reduce(Allocator& allocator, std::vector<T>& in,
-             unsigned int callback_id, T init_val,
-             std::function<bool(T, T)> comp_func)
+check_reduce(Allocator& allocator, std::vector<T>& in, unsigned int callback_id,
+             T init_val, std::function<bool(T, T)> comp_func)
 {
   size_t size = in.size();
 
   auto* my_var = allocator.reserve<T>(in.size(), &in[0]);
-  T *result = allocator.reduce<T>(my_var, callback_id, init_val);
+  T* result = allocator.reduce<T>(my_var, callback_id, init_val);
 
-  std::cout << *result << std::endl << std::endl;
   T val = init_val;
   for (size_t i = 0; i < size; ++i)
     algorep::callback::REDUCE[callback_id](&in[i], &val);
@@ -96,7 +95,11 @@ check(Allocator& allocator, std::function<bool(T, T)> comp_func)
 
   // Fills the expected array with default values.
   std::vector<T> expected_arr(array_size);
-  for (size_t i = 0; i < array_size; ++i) expected_arr[i] = rand();
+  for (size_t i = 0; i < array_size; ++i)
+  {
+    std::srand(i + time(nullptr));
+    expected_arr[i] = rand();
+  }
 
   return check<T>(allocator, expected_arr, comp_func);
 }

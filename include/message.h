@@ -28,7 +28,7 @@ namespace algorep
 
     template <typename T>
     inline int
-    send_sync(const T *buffer, size_t nb_bytes, int dest, int tag)
+    send_sync(const T* buffer, size_t nb_bytes, int dest, int tag)
     {
       return MPI_Send(buffer, nb_bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
     }
@@ -39,7 +39,7 @@ namespace algorep
       const char* buffer = str.c_str();
       size_t nb_bytes = str.length() + 1;  // Do not forget the '\0'
       return send_sync<char>(buffer, nb_bytes, dest, tag);
-      //return MPI_Send(buffer, nb_bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
+      // return MPI_Send(buffer, nb_bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
     }
 
     inline int

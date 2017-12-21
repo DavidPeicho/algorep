@@ -27,15 +27,13 @@ run()
                                    MapID::F_POW, float_comp);
 
   std::vector<double> toto3({5.30000, 0.000000001, 4981914.1111, 0.09});
-  tests_passed +=
-      check_map<double>(*allocator, toto3, algorep::DataType::DOUBLE,
-                        MapID::D_POW, float_comp);
+  tests_passed += check_map<double>(
+      *allocator, toto3, algorep::DataType::DOUBLE, MapID::D_POW, float_comp);
 
   std::vector<unsigned long> toto4(
       {13949404, 1003, 1, 0, 10000000, 100, 9999999});
-  tests_passed +=
-      check_map<unsigned long>(*allocator, toto4, algorep::DataType::ULONG,
-                               MapID::UL_POW, int_comp);
+  tests_passed += check_map<unsigned long>(
+      *allocator, toto4, algorep::DataType::ULONG, MapID::UL_POW, int_comp);
 
   // Super important call, forgeting this will make
   // the slaves wait indefinitely.

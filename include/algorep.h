@@ -17,7 +17,7 @@ namespace algorep
     applyCallback(uint8_t* input, size_t nb_elt, unsigned int call_id)
     {
       T* data = (T*)input;
-      nb_elt = nb_elt / sizeof (T);
+      nb_elt = nb_elt / sizeof(T);
 
       for (size_t i = 0; i < nb_elt; ++i)
         algorep::callback::MAPS[call_id](&data[i]);
@@ -25,12 +25,12 @@ namespace algorep
 
     template <typename T>
     inline void
-    applyReduce(const uint8_t* input, size_t nb_elt,
-                unsigned int call_id, uint8_t *out)
+    applyReduce(const uint8_t* input, size_t nb_elt, unsigned int call_id,
+                uint8_t* out)
     {
-      const T *input_cast = (T*)input;
-      T *out_cast = (T*)out;
-      nb_elt = nb_elt / sizeof (T);
+      const T* input_cast = (T*)input;
+      T* out_cast = (T*)out;
+      nb_elt = nb_elt / sizeof(T);
       for (size_t i = 0; i < nb_elt; ++i)
         algorep::callback::REDUCE[call_id](&input_cast[i], out_cast);
     }

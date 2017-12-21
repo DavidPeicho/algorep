@@ -48,6 +48,12 @@ namespace algorep
     reduce(const Element<T>* elt, unsigned int callback_id, T init_val = 0);
 
     public:
+    inline const std::vector<unsigned long long>&
+    getMemoryStatus() const
+    {
+      return this->memory_per_node_;
+    }
+
     inline void
     setMaxMemory(size_t nb_bytes)
     {

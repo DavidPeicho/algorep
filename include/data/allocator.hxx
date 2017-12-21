@@ -9,17 +9,6 @@
 
 namespace algorep
 {
-  namespace
-  {
-    // TODO: We could actually cache this value,
-    // instead of recomputing it.
-    int
-    getRankFromId(const std::string& id)
-    {
-      return std::strtol(id.c_str(), nullptr, 10);
-    }
-  }
-
   template <typename T>
   Element<T>*
   Allocator::reserve(size_t nb_elements, const T* elt)
@@ -85,6 +74,8 @@ namespace algorep
       // TODO: normally, we should check that every allocation
       // has succeeded.
       this->memory_per_node_[node_id - 1] -= bytes;
+
+      if (id != nullptr) delete[] id;
     }
 
     return result;
@@ -103,7 +94,8 @@ namespace algorep
       const auto& bound = bounds[i];
       const auto& id = ids[i];
 
-      int dest = getRankFromId(id);
+      // int dest = getRankFromId(id);
+      const int dest = elt->getIntIds()[i];
 
       // Asks the `dest' slave for a read.
       MPI_Request req;
@@ -183,7 +175,9 @@ namespace algorep
       // that the next ones are in the same state.
       if (data.capacity() == 0) break;
 
-      const int dest = getRankFromId(ids[i]);
+      // const int dest = getRankFromId(ids[i]);
+      const int dest = elt->getIntIds()[i];
+
       // Asks the slave `dest' for a write.
       MPI_Request req;
       message::send<uint8_t>(&data[0], data.capacity(), dest, TAGS::WRITE, req);
@@ -198,7 +192,8 @@ namespace algorep
       const auto& data = formatted[i];
       if (data.capacity() == 0) break;
 
-      const int dest = getRankFromId(ids[i]);
+      // const int dest = getRankFromId(ids[i]);
+      const int dest = elt->getIntIds()[i];
       // TODO: It would have been better to use a completely
       // asynchronous system. However, it would need something
       // such as a ThreadPool that does busy waiting, and I don't
@@ -215,18 +210,19 @@ namespace algorep
 
   template <typename T>
   T*
-  Allocator::reduce(const Element<T>* elt,
-                    unsigned int callback_id, T init_val)
+  Allocator::reduce(const Element<T>* elt, unsigned int callback_id, T init_val)
   {
-    static constexpr unsigned int UINT_LEN = sizeof (unsigned int);
+    static constexpr unsigned int UINT_LEN = sizeof(unsigned int);
     static constexpr unsigned int DATA_LEN = 2 * UINT_LEN + 64;
     const auto& ids = elt->getIds();
 
     if (ids.size() == 0) return nullptr;
 
     // We send the message to the first cluster.
-    const int dest = getRankFromId(ids[0]);
-    const int last = getRankFromId(ids[ids.size() - 1]);
+    // const int dest = getRankFromId(ids[0]);
+    // const int last = getRankFromId(ids[ids.size() - 1]);
+    const int dest = elt->getIntIds()[0];
+    const int last = elt->getIntIds()[ids.size() - 1];
 
     // We will also send a string containing the chain
     // of every node to reach.
@@ -250,13 +246,12 @@ namespace algorep
 
     // Copies 64 bytes with initial accumulator value.
     std::memset(&data[0], 0, 64);
-    std::memcpy(&data[0], &init_val, sizeof (T));
+    std::memcpy(&data[0], &init_val, sizeof(T));
     // Copies data type
     std::memcpy(&data[0] + 64, &callback::ElementType<T>::value, UINT_LEN);
     std::memcpy(&data[0] + 64 + UINT_LEN, &callback_id, UINT_LEN);
-    std::memcpy(
-      &data[0] + 64 + 2 * UINT_LEN, nodes_list.c_str(), nodes_list.length() + 1
-    );
+    std::memcpy(&data[0] + 64 + 2 * UINT_LEN, nodes_list.c_str(),
+                nodes_list.length() + 1);
 
     // Sends message to first node of the list.
     MPI_Request req;

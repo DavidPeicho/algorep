@@ -21,10 +21,15 @@ namespace algorep
     END
   };
 
-  static const unsigned int DataTypeToSize[9] = {
-    sizeof(unsigned short), sizeof(short), sizeof(unsigned int), sizeof(int),
-    sizeof(unsigned long), sizeof(long), sizeof(float), sizeof(double), 0
-  };
+  static const unsigned int DataTypeToSize[9] = {sizeof(unsigned short),
+                                                 sizeof(short),
+                                                 sizeof(unsigned int),
+                                                 sizeof(int),
+                                                 sizeof(unsigned long),
+                                                 sizeof(long),
+                                                 sizeof(float),
+                                                 sizeof(double),
+                                                 0};
 
   namespace callback
   {
@@ -117,14 +122,14 @@ namespace algorep
     {
       template <typename T>
       void
-      sum(const T &a, T &out)
+      sum(const T& a, T& out)
       {
         out += a;
       }
 
       template <typename T>
       void
-      count_even(const T &a, T &out)
+      count_even(const T& a, T& out)
       {
         out += !!(a % 2 == 0);
       }
@@ -140,8 +145,7 @@ namespace algorep
         (CallbackReduce)sum<int>,
         (CallbackReduce)sum<float>,
         (CallbackReduce)sum<double>,
-        (CallbackReduce)sum<long>
-    };
+        (CallbackReduce)sum<long>};
 
     enum ReduceID
     {
@@ -165,55 +169,57 @@ namespace algorep
     };
 
     template <typename T>
-    struct ElementType { };
+    struct ElementType
+    {
+    };
 
-    template<>
+    template <>
     struct ElementType<unsigned short>
     {
       static const DataType value = DataType::USHORT;
     };
 
-    template<>
+    template <>
     struct ElementType<short>
     {
       static const DataType value = DataType::SHORT;
     };
 
-    template<>
+    template <>
     struct ElementType<unsigned int>
     {
       static const DataType value = DataType::UINT;
     };
 
-    template<>
+    template <>
     struct ElementType<int>
     {
       static const DataType value = DataType::INT;
     };
 
-    template<>
+    template <>
     struct ElementType<unsigned long>
     {
       static const DataType value = DataType::ULONG;
     };
 
-    template<>
+    template <>
     struct ElementType<long>
     {
       static const DataType value = DataType::LONG;
     };
 
-    template<>
+    template <>
     struct ElementType<float>
     {
       static const DataType value = DataType::FLOAT;
     };
 
-    template<>
+    template <>
     struct ElementType<double>
     {
       static const DataType value = DataType::DOUBLE;
     };
-    //struct ElementType<double> { static DataType value = DataType::DOUBLE; };
+    // struct ElementType<double> { static DataType value = DataType::DOUBLE; };
   }
 }  // namespace algorep

@@ -5,6 +5,17 @@
 
 namespace algorep
 {
+  namespace
+  {
+    // TODO: We could actually cache this value,
+    // instead of recomputing it.
+    int
+    getRankFromId(const std::string& id)
+    {
+      return std::strtol(id.c_str(), nullptr, 10);
+    }
+  }
+
   class BaseElement
   {
     public:
@@ -19,9 +30,9 @@ namespace algorep
     inline void
     addId(const std::string& id, const std::tuple<size_t, size_t>& bounds)
     {
-      // this->vars_[id] = bounds;
       this->bounds_.push_back(bounds);
       this->ids_.push_back(id);
+      this->int_ids_.push_back(getRankFromId(id));
     }
 
     public:
@@ -35,6 +46,12 @@ namespace algorep
     getIds() const
     {
       return this->ids_;
+    }
+
+    inline const std::vector<int>&
+    getIntIds() const
+    {
+      return this->int_ids_;
     }
 
     inline size_t
@@ -55,6 +72,7 @@ namespace algorep
 
     std::vector<std::tuple<size_t, size_t>> bounds_;
     std::vector<std::string> ids_;
+    std::vector<int> int_ids_;
   };
 
   template <typename T>
