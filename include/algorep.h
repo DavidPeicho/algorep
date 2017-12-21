@@ -43,9 +43,6 @@ namespace algorep
   run(const std::function<void()> callback, size_t max_memory = MAX_MEMORY);
 
   void
-  registerOperation();
-
-  void
   finalize();
 
   void

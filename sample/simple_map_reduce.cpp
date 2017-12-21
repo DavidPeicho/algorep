@@ -80,7 +80,7 @@ run()
 
   // Maps each of the element pointed by the `var'
   // variable, to its absolute value counterpart.
-  allocator->map(var, algorep::DataType::DOUBLE, MapID::D_ABS);
+  allocator->map<double>(var, MapID::D_ABS);
 
   // Reads it back to see that it actually worked.
   double *tmp = allocator->read<double>(var);

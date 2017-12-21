@@ -47,13 +47,13 @@ check_reduce(Allocator& allocator, std::vector<T>& in, unsigned int callback_id,
 
 template <typename T>
 unsigned int
-check_map(Allocator& allocator, std::vector<T>& in, unsigned int data_type,
+check_map(Allocator& allocator, std::vector<T>& in,
           unsigned int callback_id, std::function<bool(T, T)> comp_func)
 {
   size_t size = in.size();
 
   auto* my_var = allocator.reserve(in.size(), &in[0]);
-  allocator.map(my_var, data_type, callback_id);
+  allocator.map<T>(my_var, callback_id);
 
   auto* read = allocator.read(my_var);
   size_t i = 0;

@@ -140,7 +140,6 @@ namespace algorep
     {
       char* data_cstr = nullptr;
       message::rec_sync(0, TAGS::MAP, status, &data_cstr);
-
       std::string data(data_cstr);
 
       MPI_Request req;

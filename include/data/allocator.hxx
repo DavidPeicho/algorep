@@ -209,6 +209,34 @@ namespace algorep
   }
 
   template <typename T>
+  Allocator*
+  Allocator::map(const Element<T>* elt, unsigned int callback_id)
+  {
+    static constexpr int DATA_TYPE = callback::ElementType<T>::value;
+    const auto& ids = elt->getIds();
+    for (size_t i = 0; i < ids.size(); ++i)
+    {
+      const int dest = elt->getIntIds()[i];
+
+      std::string id = ids[i] + "-" + std::to_string(callback_id);
+      id += "-" + std::to_string(DATA_TYPE);
+
+      MPI_Request req;
+      message::send(id, dest, TAGS::MAP, req);
+    }
+
+    for (size_t i = 0; i < ids.size(); ++i)
+    {
+      const int dest = elt->getIntIds()[i];
+
+      uint8_t status = 0;
+      message::rec_sync_ack(dest, TAGS::MAP, status);
+    }
+
+    return this;
+  }
+
+  template <typename T>
   T*
   Allocator::reduce(const Element<T>* elt, unsigned int callback_id, T init_val)
   {

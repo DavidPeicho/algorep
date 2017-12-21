@@ -39,9 +39,9 @@ namespace algorep
     void
     free(BaseElement* elt);
 
+    template <typename T>
     Allocator*
-    map(const BaseElement* elt, unsigned int data_type,
-        unsigned int callback_id);
+    map(const Element<T>* elt, unsigned int callback_id);
 
     template <typename T>
     T*

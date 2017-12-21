@@ -37,10 +37,10 @@ sample/simple_map_reduce: lib$(LIB_NAME).so sample/simple_map_reduce.o
 
 clean:
 	$(RM) lib$(LIB_NAME).so $(LIB_OBJS)
-	$(RM) test/print sample/print.o
-	$(RM) test/print_random sample/print_random.o
-	$(RM) test/map sample/map.o
-	$(RM) test/reduce sample/reduce.o
+	$(RM) test/print test/print.o
+	$(RM) test/print_random test/print_random.o
+	$(RM) test/map test/map.o
+	$(RM) test/reduce test/reduce.o
 	$(RM) sample/simple_map_reduce sample/simple_map_reduce.o
 
 format:
