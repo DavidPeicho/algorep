@@ -2,13 +2,13 @@
 
 ## What's this project?!
 
-The goal is to provide an high-level & easy-to-use **API** for making distrubted algorithms. It is fully written in **C++** for performance reasons.
+The goal is to provide an high-level & easy-to-use **API** for making distributed algorithms. It is fully written in **C++** for performance reasons.
 
 This project is part of our Master in Computer Science.
 
 ## Design Goals
 
-The library tries to be as much typed as it can! It also handles a single and an element the same way! this will avoid you to make specific cases in you code!
+The library tries to be as much typed as it can! It also handles a single and an array of element the same way! This will avoid you to make specific cases in you code!
 
 The library is conceived to let the compiler make as much static check as it can, before the data are actually sent over the network.
 
@@ -79,7 +79,7 @@ allocator->free(var);
 ```
 
 Be careful here, when free returns, your variable `var` has also been free in order to prevent you to try to read back data that have been freed on slaves.
-So, using `var` is undefined behaviour.
+So, using `var` is undefined behavior.
 
 ### Write
 ```cpp
@@ -135,7 +135,7 @@ You will need the following dependencies:
 You can build the project simply using `make`:
 
 ```sh
-my_super_sh$ cd distrubted_algorithm/
+my_super_sh$ cd distributed_algorithm/
 my_super_sh$ make
 ```
 
@@ -168,7 +168,7 @@ my_super_sh$ mpirun -n 4 my_super_sample
 
 ```
 
-This command will run the sample `my_super_sample` in 4 different processus. If you plan to use different machine, take a closer look at the `mpirun` documentation.
+This command will run the sample `my_super_sample` in 4 different processes. If you plan to use different machine, take a closer look at the `mpirun` documentation.
 
 ## Test
 
@@ -178,5 +178,5 @@ my_super_sh$ cd algorep && make check
 
 ```
 
-For now, the test suite is simple, and it should be replaced either by using GoogleTest, or another famouse test framework such as libcheck.
+For now, the test suite is simple, and it should be replaced either by using GoogleTest, or another famous test framework such as libcheck.
 
