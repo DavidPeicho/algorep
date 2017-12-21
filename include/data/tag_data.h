@@ -2,7 +2,7 @@
 
 /**
  * @file tag_data.h
- * @brief 
+ * @brief Define tags sent in messages.
  * @author David Peicho, Sarasvati Moutoucomarapoulé
  * @version 1.0
  * @date 2017-12-21
@@ -11,7 +11,7 @@
 namespace algorep
 {
   /**
-   * @brief 
+   * @brief Operations identifiers.
    */
   enum TAGS
   {

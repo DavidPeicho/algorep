@@ -29,37 +29,37 @@ namespace algorep
   {
     public:
     /**
-     * @brief 
+     * @brief Allocate space in memory for some data.
      *
-     * @param node_rank
-     * @param nb_bytes
+     * @param node_rank Rank of the node where is allocated the data.
+     * @param nb_bytes Number of bytes requested.
      *
-     * @return 
+     * @return Data identifier.
      */
     std::string
     reserve(int node_rank, int nb_bytes);
 
     /**
-     * @brief 
+     * @brief Release all data.
      */
     void
     release();
 
     /**
-     * @brief 
+     * @brief Release specific data.
      *
-     * @param id
+     * @param id Data to release.
      */
     void
     release(const std::string& id);
 
     public:
     /**
-     * @brief 
+     * @brief Get specific data.
      *
-     * @param id
+     * @param id Data to get.
      *
-     * @return 
+     * @return Data queried.
      */
     inline std::vector<uint8_t>&
     get(const std::string& id)
@@ -68,11 +68,11 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Get specific data as const.
      *
-     * @param id
+     * @param id Data to get.
      *
-     * @return 
+     * @return Data queried.
      */
     inline const std::vector<uint8_t>&
     getConst(const std::string& id) const
@@ -93,7 +93,7 @@ namespace algorep
 
     private:
     /**
-     * @brief 
+     * @brief Store data associated with its identifier.
      */
     std::unordered_map<std::string, std::vector<uint8_t>> data_;
 

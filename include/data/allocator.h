@@ -80,7 +80,7 @@ namespace algorep
     write(const Element<T>* elt, const T* data, size_t nb_elts = 0);
 
     /**
-     * @brief Free shared memory.
+     * @brief Free the passed argument and the underlying shared memory.
      *
      * @param elt Where to free.
      */

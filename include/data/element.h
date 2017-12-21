@@ -18,11 +18,11 @@ namespace algorep
     // TODO: We could actually cache this value,
     // instead of recomputing it.
     /**
-     * @brief 
+     * @brief Get the rank of a node from its identifier.
      *
-     * @param id
+     * @param id Identifier.
      *
-     * @return 
+     * @return Rank of the node.
      */
     int
     getRankFromId(const std::string& id)
@@ -40,8 +40,8 @@ namespace algorep
     /**
      * @brief Constructor.
      *
-     * @param nb_values
-     * @param atom_size
+     * @param nb_values Number of elements in data.
+     * @param atom_size Size of one element.
      */
     BaseElement(size_t nb_values, unsigned int atom_size)
         : nb_values_{nb_values}, atom_size_{atom_size}
@@ -55,10 +55,10 @@ namespace algorep
 
     public:
     /**
-     * @brief 
+     * @brief Track a new chunk of data on a specific node.
      *
-     * @param id
-     * @param bounds
+     * @param id Node identifier.
+     * @param bounds Bounds of the chunk of data on the node.
      */
     inline void
     addId(const std::string& id, const std::tuple<size_t, size_t>& bounds)
@@ -70,9 +70,9 @@ namespace algorep
 
     public:
     /**
-     * @brief 
+     * @brief Get the bounds of the split data on every node.
      *
-     * @return 
+     * @return Bounds of chunks for each node.
      */
     inline const std::vector<std::tuple<size_t, size_t>>&
     getBounds() const
@@ -81,9 +81,9 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Get nodes identifiers where the data is.
      *
-     * @return 
+     * @return Nodes identifiers.
      */
     inline const std::vector<std::string>&
     getIds() const
@@ -92,9 +92,9 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Get nodes identifiers where the data is as integers.
      *
-     * @return 
+     * @return Nodes identifiers as integers.
      */
     inline const std::vector<int>&
     getIntIds() const
@@ -103,9 +103,9 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Get number of elements in data.
      *
-     * @return 
+     * @return Number of elements.
      */
     inline size_t
     getNbValues() const
@@ -114,9 +114,9 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Get size of one element.
      *
-     * @return 
+     * @return Size of one element.
      */
     inline unsigned int
     getAtomSize() const
@@ -126,27 +126,27 @@ namespace algorep
 
     protected:
     /**
-     * @brief 
+     * @brief Number of element.
      */
     size_t nb_values_;
 
     /**
-     * @brief 
+     * @brief Size of one element.
      */
     unsigned int atom_size_;
 
     /**
-     * @brief 
+     * @brief Bounds of chunks of data on each node.
      */
     std::vector<std::tuple<size_t, size_t>> bounds_;
 
     /**
-     * @brief 
+     * @brief Nodes identifiers.
      */
     std::vector<std::string> ids_;
 
     /**
-     * @brief 
+     * @brief Nodes identifiers as integers.
      */
     std::vector<int> int_ids_;
   };
@@ -161,9 +161,9 @@ namespace algorep
   {
     public:
     /**
-     * @brief 
+     * @brief Constructor.
      *
-     * @param nb_values
+     * @param nb_values Number of elements in data.
      */
     Element(size_t nb_values) : BaseElement(nb_values, sizeof(T)) {}
   };
