@@ -4,10 +4,30 @@
 
 #include <mpi/mpi.h>
 
+/**
+ * @file message.h
+ * @brief 
+ * @author David Peicho, Sarasvati Moutoucomarapoulé
+ * @version 1.0
+ * @date 2017-12-21
+ */
+
 namespace algorep
 {
   namespace message
   {
+    /**
+     * @brief 
+     *
+     * @tparam T
+     * @param buffer
+     * @param nb_bytes
+     * @param dest
+     * @param tag
+     * @param request
+     *
+     * @return 
+     */
     template <typename T>
     inline int
     send(const T* buffer, size_t nb_bytes, int dest, int tag,
@@ -17,6 +37,16 @@ namespace algorep
                        &request);
     }
 
+    /**
+     * @brief 
+     *
+     * @param str
+     * @param dest
+     * @param tag
+     * @param request
+     *
+     * @return 
+     */
     inline int
     send(const std::string& str, int dest, int tag, MPI_Request& request)
     {
@@ -26,6 +56,17 @@ namespace algorep
       return send<char>(buffer, nb_bytes, dest, tag, request);
     }
 
+    /**
+     * @brief 
+     *
+     * @tparam T
+     * @param buffer
+     * @param nb_bytes
+     * @param dest
+     * @param tag
+     *
+     * @return 
+     */
     template <typename T>
     inline int
     send_sync(const T* buffer, size_t nb_bytes, int dest, int tag)
@@ -33,6 +74,15 @@ namespace algorep
       return MPI_Send(buffer, nb_bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
     }
 
+    /**
+     * @brief 
+     *
+     * @param str
+     * @param dest
+     * @param tag
+     *
+     * @return 
+     */
     inline int
     send_sync(const std::string& str, int dest, int tag)
     {
@@ -42,6 +92,15 @@ namespace algorep
       // return MPI_Send(buffer, nb_bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD);
     }
 
+    /**
+     * @brief 
+     *
+     * @param dest
+     * @param tag
+     * @param out
+     *
+     * @return 
+     */
     inline int
     rec_sync_ack(int dest, int tag, uint8_t& out)
     {
@@ -49,6 +108,17 @@ namespace algorep
                       MPI_STATUS_IGNORE);
     }
 
+    /**
+     * @brief 
+     *
+     * @tparam T
+     * @param dest
+     * @param tag
+     * @param bytes
+     * @param out
+     *
+     * @return 
+     */
     template <typename T>
     inline int
     rec_sync(int dest, int tag, int bytes, T* out)
@@ -57,6 +127,17 @@ namespace algorep
                       MPI_STATUS_IGNORE);
     }
 
+    /**
+     * @brief 
+     *
+     * @tparam T
+     * @param dest
+     * @param tag
+     * @param status
+     * @param out
+     *
+     * @return 
+     */
     template <typename T>
     inline int
     rec_sync(int dest, int tag, MPI_Status& status, T** out)
@@ -68,6 +149,18 @@ namespace algorep
       return message::rec_sync<T>(dest, tag, nb_bytes, *out);
     }
 
+    /**
+     * @brief 
+     *
+     * @tparam T
+     * @param dest
+     * @param tag
+     * @param status
+     * @param nb_bytes
+     * @param out
+     *
+     * @return 
+     */
     template <typename T>
     inline int
     rec_sync(int dest, int tag, MPI_Status& status, int* nb_bytes, T** out)
@@ -78,6 +171,16 @@ namespace algorep
       return message::rec_sync<T>(dest, tag, *nb_bytes, *out);
     }
 
+    /**
+     * @brief 
+     *
+     * @tparam T
+     * @param dest
+     * @param tag
+     * @param out
+     *
+     * @return 
+     */
     template <typename T>
     inline int
     rec_sync(int dest, int tag, T** out)
@@ -92,5 +195,5 @@ namespace algorep
 
       return message::rec_sync<T>(dest, tag, nb_bytes, *out);
     }
-  }  // namespace algorep
+  }  // namespace message
 }  // namespace algorep

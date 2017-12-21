@@ -1,5 +1,11 @@
-// This sample shows how to simply use the allocator
-// to make map and reduce operations.
+/**
+ * @file simple_map_reduce.cpp
+ * @brief This sample shows how to simply use the allocator to make map and reduce
+ * operations.
+ * @author David Peicho, Sarasvati Moutoucomarapoulé
+ * @version 1.0
+ * @date 2017-12-21
+ */
 
 #include <cstdlib>
 #include <ctime>
@@ -10,6 +16,11 @@
 
 using namespace algorep::callback;
 
+/**
+ * @brief 
+ *
+ * @param memStatus
+ */
 void
 printMemoryStatus(const std::vector<unsigned long long> &memStatus)
 {
@@ -20,6 +31,15 @@ printMemoryStatus(const std::vector<unsigned long long> &memStatus)
   std::cout << std::endl;
 }
 
+/**
+ * @brief 
+ *
+ * @tparam T
+ * @param allocator
+ * @param in
+ *
+ * @return 
+ */
 template <typename T>
 algorep::Element<T>*
 reserve(algorep::Allocator *allocator, const std::vector<T>& in)
@@ -34,6 +54,9 @@ reserve(algorep::Allocator *allocator, const std::vector<T>& in)
   return var;
 }
 
+/**
+ * @brief 
+ */
 void
 run()
 {

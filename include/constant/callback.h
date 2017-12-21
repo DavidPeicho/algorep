@@ -1,13 +1,24 @@
 #pragma once
 
+/**
+ * @file callback.h
+ * @brief Store mappings/reducing callbacks.
+ * @author David Peicho, Sarasvati Moutoucomarapoulé
+ * @version 1.0
+ * @date 2017-12-21
+ */
+
 // This is not good for you developers, but you will
-// have to add you mapping / reducing callbacks here.
+// have to add your mapping / reducing callbacks here.
 
 // 1) Create you callback method.
 // 2) Register in the associated static array.
 
 namespace algorep
 {
+  /**
+   * @brief Map handled types to an integer.
+   */
   enum DataType
   {
     USHORT = 0,
@@ -21,6 +32,9 @@ namespace algorep
     END
   };
 
+  /**
+   * @brief Size of each handled type.
+   */
   static const unsigned int DataTypeToSize[9] = {sizeof(unsigned short),
                                                  sizeof(short),
                                                  sizeof(unsigned int),
@@ -35,7 +49,20 @@ namespace algorep
   {
     namespace
     {
+      /**
+       * @brief Prototype of a mapping callback.
+       *
+       * @param data Processed data.
+       */
       typedef void (*Callback)(void* data);
+
+      /**
+       * @brief Prototype of a reducing callback.
+       *
+       * @param a Processed data.
+       * @param out Accumulator.
+       *
+       */
       typedef void (*CallbackReduce)(const void* a, void* out);
     }
 
@@ -44,6 +71,12 @@ namespace algorep
     ///////////////////////////////////////////////////////////////////////////
     namespace
     {
+      /**
+       * @brief In-place absolute function.
+       *
+       * @tparam T Numeric type.
+       * @param a Value to process.
+       */
       template <typename T>
       void
       abs(T& a)
@@ -51,6 +84,12 @@ namespace algorep
         a = (a > 0) ? a : -a;
       }
 
+      /**
+       * @brief In-place power function.
+       *
+       * @tparam T Numeric type.
+       * @param a Value to process.
+       */
       template <typename T>
       void
       pow(T& a)
@@ -58,6 +97,12 @@ namespace algorep
         a = a * a;
       }
 
+      /**
+       * @brief In-place negate function.
+       *
+       * @tparam T Numeric type.
+       * @param a Value to process.
+       */
       template <typename T>
       void
       negate(T& a)
@@ -66,7 +111,9 @@ namespace algorep
       }
     }
 
-    // ->
+    /**
+     * @brief Map of available mapping callbacks.
+     */
     // Adds you callback used in the map here.
     static const Callback MAPS[18] = {
         (Callback)abs<short>,
@@ -91,6 +138,9 @@ namespace algorep
         (Callback)pow<long>,
     };
 
+    /**
+     * @brief Map callbacks to integers.
+     */
     enum MapID
     {
       S_ABS = 0,
@@ -120,6 +170,13 @@ namespace algorep
     ///////////////////////////////////////////////////////////////////////////
     namespace
     {
+      /**
+       * @brief Summing function.
+       *
+       * @tparam T Numeric type.
+       * @param a Value to process.
+       * @param out Accumulator.
+       */
       template <typename T>
       void
       sum(const T& a, T& out)
@@ -127,6 +184,13 @@ namespace algorep
         out += a;
       }
 
+      /**
+       * @brief Count even values.
+       *
+       * @tparam T Numeric type.
+       * @param a Value to process.
+       * @param out Accumulator.
+       */
       template <typename T>
       void
       count_even(const T& a, T& out)
@@ -135,7 +199,9 @@ namespace algorep
       }
     }
 
-    // ->
+    /**
+     * @brief Map of available reducing callbacks.
+     */
     // Adds you callback used in the reduce here.
     static const CallbackReduce REDUCE[8] = {
         (CallbackReduce)sum<unsigned short>,
@@ -147,6 +213,9 @@ namespace algorep
         (CallbackReduce)sum<double>,
         (CallbackReduce)sum<long>};
 
+    /**
+     * @brief Map reducing callbacks to integers.
+     */
     enum ReduceID
     {
       US_SUM,
@@ -168,6 +237,11 @@ namespace algorep
       L_COUNT_EVEN,
     };
 
+    /**
+     * @brief Define an integer value for a given type.
+     *
+     * @tparam T Numeric type are already handled.
+     */
     template <typename T>
     struct ElementType
     {
@@ -220,6 +294,6 @@ namespace algorep
     {
       static const DataType value = DataType::DOUBLE;
     };
-    // struct ElementType<double> { static DataType value = DataType::DOUBLE; };
+
   }
 }  // namespace algorep

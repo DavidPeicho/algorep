@@ -7,6 +7,14 @@
 #include <data/tag_data.h>
 #include <message.h>
 
+/**
+ * @file allocator.hxx
+ * @brief 
+ * @author David Peicho, Sarasvati Moutoucomarapoulé
+ * @version 1.0
+ * @date 2017-12-21
+ */
+
 namespace algorep
 {
   template <typename T>
