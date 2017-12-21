@@ -202,17 +202,16 @@ namespace algorep
     // Sends the data with this layout:
     //  64 bytes       sizeof (uint)      sizeof (uint)        N
     // [ACCUMULATOR] [...DATA_TYPE...] [...CALLBACK_ID...]  [nodes]
-    uint8_t *data = nullptr;
+    uint8_t * data = nullptr;
     int bytes = 0;
     message::rec_sync<uint8_t>(
       status.MPI_SOURCE, TAGS::REDUCE, status, &bytes, &data
     );
 
     std::string nodes_list((char*)(data + 64 + UINT_LEN * 2));
-    std::cout << nodes_list << std::endl;
     std::string curr_id = nodes_list;
     size_t sep = nodes_list.find('-');
-    if (sep != std::string::npos) curr_id = curr_id.substr(0, sep + 1);
+    if (sep != std::string::npos) curr_id = curr_id.substr(0, sep);
 
     auto &vec = memory.get(curr_id);
     auto* var_data = &vec[0];
@@ -263,9 +262,9 @@ namespace algorep
     // from the nodes list, and send it the message.
     const char *cstr = nodes_list.c_str() + sep + 1;
     int next_dest = strtol(cstr, NULL, 10);
-    size_t nb_bytes = nodes_list.length() - (sep + 1);
+
+    size_t nb_bytes = nodes_list.length() - sep;
     std::memcpy(data + 64 + UINT_LEN * 2, cstr, nb_bytes);
-    // We are on the previous last node.
 
     // Sends the message to the next node of the chain.
     message::send_sync<uint8_t>(

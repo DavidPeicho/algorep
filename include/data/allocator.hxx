@@ -35,7 +35,6 @@ namespace algorep
     size_t free_elt = nb_elements;
     for (; i < this->nb_nodes_; ++i)
     {
-      elt = elt;
       auto max = (this->memory_per_node_[i] / sizeof(T));
       if (max < 1) continue;
 
@@ -45,7 +44,6 @@ namespace algorep
             std::make_tuple(i + 1, start_idx, start_idx + free_elt - 1));
         break;
       }
-
       nodes.push_back(std::make_tuple(i + 1, start_idx, start_idx + max - 1));
       free_elt -= max;
       start_idx += max;

@@ -121,6 +121,13 @@ namespace algorep
       {
         out += a;
       }
+
+      template <typename T>
+      void
+      count_even(const T &a, T &out)
+      {
+        out += !!(a % 2 == 0);
+      }
     }
 
     // ->
@@ -146,6 +153,15 @@ namespace algorep
       F_SUM,
       D_SUM,
       L_SUM,
+
+      US_COUNT_EVEN,
+      UI_COUNT_EVEN,
+      UL_COUNT_EVEN,
+      S_COUNT_EVEN,
+      I_COUNT_EVEN,
+      F_COUNT_EVEN,
+      D_COUNT_EVEN,
+      L_COUNT_EVEN,
     };
 
     template <typename T>

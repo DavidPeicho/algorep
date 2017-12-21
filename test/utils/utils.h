@@ -29,6 +29,25 @@ namespace
 
 template <typename T>
 unsigned int
+check_reduce(Allocator& allocator, std::vector<T>& in,
+             unsigned int callback_id, T init_val,
+             std::function<bool(T, T)> comp_func)
+{
+  size_t size = in.size();
+
+  auto* my_var = allocator.reserve<T>(in.size(), &in[0]);
+  T *result = allocator.reduce<T>(my_var, callback_id, init_val);
+
+  std::cout << *result << std::endl << std::endl;
+  T val = init_val;
+  for (size_t i = 0; i < size; ++i)
+    algorep::callback::REDUCE[callback_id](&in[i], &val);
+
+  return finishTest(comp_func(val, *result), allocator, my_var, result);
+}
+
+template <typename T>
+unsigned int
 check_map(Allocator& allocator, std::vector<T>& in, unsigned int data_type,
           unsigned int callback_id, std::function<bool(T, T)> comp_func)
 {
@@ -41,7 +60,7 @@ check_map(Allocator& allocator, std::vector<T>& in, unsigned int data_type,
   size_t i = 0;
   for (; i < size; ++i)
   {
-    algorep::callback::CALLBACK_LIST[callback_id](&in[i]);
+    algorep::callback::MAPS[callback_id](&in[i]);
     if (!comp_func(in[i], read[i])) break;
   }
 

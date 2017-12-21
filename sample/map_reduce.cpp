@@ -27,7 +27,7 @@ main(int argc, char** argv)
   algorep::init(argc, argv);
 
   const auto& callback = std::function<void()>(run);
-  algorep::run(callback, 22);
+  algorep::run(callback, 24);
 
   // This is in charge of liberating some allocated
   // memory.
