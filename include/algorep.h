@@ -19,17 +19,17 @@ namespace algorep
   namespace
   {
     /**
-     * @brief 
+     * @brief Default value for max_memory parameter of run function.
      */
     constexpr size_t MAX_MEMORY = 512 * 1024 * 1024;
 
     /**
-     * @brief 
+     * @brief Apply mapping callback on each element.
      *
-     * @tparam T
-     * @param input
-     * @param nb_elt
-     * @param call_id
+     * @tparam T Type of element.
+     * @param input Data used as T*.
+     * @param nb_elt Number of elements in input.
+     * @param call_id Callback to use.
      */
     template <typename T>
     inline void
@@ -43,13 +43,13 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Apply reduce callbacks on each element.
      *
-     * @tparam T
-     * @param input
-     * @param nb_elt
-     * @param call_id
-     * @param out
+     * @tparam T Type of element.
+     * @param input Data used as const T*.
+     * @param nb_elt Number of elements in input.
+     * @param call_id Callback to use.
+     * @param out Accumulator.
      */
     template <typename T>
     inline void
@@ -65,31 +65,31 @@ namespace algorep
   }
 
   /**
-   * @brief 
+   * @brief Initialize environment.
    *
-   * @param argc
-   * @param argv
+   * @param argc Number of arguments.
+   * @param argv Arguments.
    */
   void
   init(int argc, char** argv);
 
   /**
-   * @brief 
+   * @brief Execution of a node (react to messages).
    *
-   * @param callback
-   * @param max_memory
+   * @param callback Master behavior.
+   * @param max_memory Maximum memory per node.
    */
   void
   run(const std::function<void()> callback, size_t max_memory = MAX_MEMORY);
 
   /**
-   * @brief 
+   * @brief Terminate execution environment.
    */
   void
   finalize();
 
   /**
-   * @brief 
+   * @brief Free the unique allocator instance.
    */
   void
   terminate();

@@ -17,16 +17,16 @@ namespace algorep
   namespace message
   {
     /**
-     * @brief 
+     * @brief Send a non-blocking message to a particular node.
      *
-     * @tparam T
-     * @param buffer
-     * @param nb_bytes
-     * @param dest
-     * @param tag
-     * @param request
+     * @tparam T Type of element.
+     * @param buffer Data to send.
+     * @param nb_bytes Size of buffer.
+     * @param dest Destination node.
+     * @param tag Operation identifier.
+     * @param request MPI handle.
      *
-     * @return 
+     * @return MPI error code.
      */
     template <typename T>
     inline int
@@ -38,14 +38,14 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Send a non-blocking message to a particular node.
      *
-     * @param str
-     * @param dest
-     * @param tag
-     * @param request
+     * @param str Data to send.
+     * @param dest Destination node.
+     * @param tag Operation identifier.
+     * @param request MPI handle.
      *
-     * @return 
+     * @return MPI error code.
      */
     inline int
     send(const std::string& str, int dest, int tag, MPI_Request& request)
@@ -57,15 +57,15 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Send a blocking message to a particular node.
      *
-     * @tparam T
-     * @param buffer
-     * @param nb_bytes
-     * @param dest
-     * @param tag
+     * @tparam T Type of element.
+     * @param buffer Data to send.
+     * @param nb_bytes Size of buffer.
+     * @param dest Destination node.
+     * @param tag Operation identifier.
      *
-     * @return 
+     * @return MPI error code.
      */
     template <typename T>
     inline int
@@ -75,13 +75,13 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Send a blocking message to a particular node.
      *
-     * @param str
-     * @param dest
-     * @param tag
+     * @param str Data to send.
+     * @param dest Destination node.
+     * @param tag Operation identifier.
      *
-     * @return 
+     * @return MPI error code.
      */
     inline int
     send_sync(const std::string& str, int dest, int tag)
@@ -93,107 +93,107 @@ namespace algorep
     }
 
     /**
-     * @brief 
+     * @brief Blocking receive of a message from a particular node.
      *
-     * @param dest
-     * @param tag
-     * @param out
+     * @param src Source node.
+     * @param tag Operation identifier.
+     * @param out Data to retrieve.
      *
-     * @return 
+     * @return MPI error code.
      */
     inline int
-    rec_sync_ack(int dest, int tag, uint8_t& out)
+    rec_sync_ack(int src, int tag, uint8_t& out)
     {
-      return MPI_Recv(&out, 1, MPI_BYTE, dest, tag, MPI_COMM_WORLD,
+      return MPI_Recv(&out, 1, MPI_BYTE, src, tag, MPI_COMM_WORLD,
                       MPI_STATUS_IGNORE);
     }
 
     /**
-     * @brief 
+     * @brief Blocking receive of a message from a particular node.
      *
-     * @tparam T
-     * @param dest
-     * @param tag
-     * @param bytes
-     * @param out
+     * @tparam T Type of element.
+     * @param src Source node.
+     * @param tag Operation identifier.
+     * @param bytes Maximum number of bytes to receive.
+     * @param out Data to retrieve.
      *
-     * @return 
+     * @return MPI error code.
      */
     template <typename T>
     inline int
-    rec_sync(int dest, int tag, int bytes, T* out)
+    rec_sync(int src, int tag, int bytes, T* out)
     {
-      return MPI_Recv(out, bytes, MPI_BYTE, dest, tag, MPI_COMM_WORLD,
+      return MPI_Recv(out, bytes, MPI_BYTE, src, tag, MPI_COMM_WORLD,
                       MPI_STATUS_IGNORE);
     }
 
     /**
-     * @brief 
+     * @brief Blocking receive of a message from a particular node.
      *
-     * @tparam T
-     * @param dest
-     * @param tag
-     * @param status
-     * @param out
+     * @tparam T Type of element.
+     * @param src Source node.
+     * @param tag Operation identifier.
+     * @param status Status object to retrieve data size.
+     * @param out Data to retrieve.
      *
-     * @return 
+     * @return MPI error code.
      */
     template <typename T>
     inline int
-    rec_sync(int dest, int tag, MPI_Status& status, T** out)
+    rec_sync(int src, int tag, MPI_Status& status, T** out)
     {
       int nb_bytes = 0;
       MPI_Get_count(&status, MPI_BYTE, &nb_bytes);
 
       *out = new T[nb_bytes];
-      return message::rec_sync<T>(dest, tag, nb_bytes, *out);
+      return message::rec_sync<T>(src, tag, nb_bytes, *out);
     }
 
     /**
-     * @brief 
+     * @brief Blocking receive of a message from a particular node.
      *
-     * @tparam T
-     * @param dest
-     * @param tag
-     * @param status
-     * @param nb_bytes
-     * @param out
+     * @tparam T Type of element.
+     * @param src Source node.
+     * @param tag Operation identifier.
+     * @param status Status object to retrieve data size.
+     * @param nb_bytes Store data size.
+     * @param out Data to retrieve.
      *
-     * @return 
+     * @return MPI error code.
      */
     template <typename T>
     inline int
-    rec_sync(int dest, int tag, MPI_Status& status, int* nb_bytes, T** out)
+    rec_sync(int src, int tag, MPI_Status& status, int* nb_bytes, T** out)
     {
       MPI_Get_count(&status, MPI_BYTE, nb_bytes);
 
       *out = new T[*nb_bytes];
-      return message::rec_sync<T>(dest, tag, *nb_bytes, *out);
+      return message::rec_sync<T>(src, tag, *nb_bytes, *out);
     }
 
     /**
-     * @brief 
+     * @brief Blocking receive of a message from a particular node.
      *
-     * @tparam T
-     * @param dest
-     * @param tag
-     * @param out
+     * @tparam T Type of element.
+     * @param src Source node.
+     * @param tag Operation identifier.
+     * @param out Data to retrieve.
      *
-     * @return 
+     * @return MPI error code.
      */
     template <typename T>
     inline int
-    rec_sync(int dest, int tag, T** out)
+    rec_sync(int src, int tag, T** out)
     {
       MPI_Status status;
-      MPI_Probe(dest, tag, MPI_COMM_WORLD, &status);
+      MPI_Probe(src, tag, MPI_COMM_WORLD, &status);
 
       int nb_bytes = 0;
       MPI_Get_count(&status, MPI_BYTE, &nb_bytes);
 
       if (nb_bytes != 0) *out = new T[nb_bytes];
 
-      return message::rec_sync<T>(dest, tag, nb_bytes, *out);
+      return message::rec_sync<T>(src, tag, nb_bytes, *out);
     }
   }  // namespace message
 }  // namespace algorep
