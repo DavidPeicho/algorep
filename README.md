@@ -8,7 +8,7 @@ This project is part of our Master in Computer Science.
 
 ## Design Goals
 
-The library tries to be as much typed as it can!
+The library tries to be as much typed as it can! It also handles a single and an element the same way! this will avoid you to make specific cases in you code!
 
 The library is conceived to let the compiler make as much static check as it can, before the data are actually sent over the network.
 
@@ -71,6 +71,7 @@ my_type* read_back = allocator->read<my_type>(var);
 ```
 Be careful here, you are reading **all** your data back to your master. If you had 5Go allocated on several slaves, your master will read them back in the `read_back` variable, there is no smart memory mapping system for now.
 
+The data that you receive are always allocated using `new my_type[]`, consequently, you have to free them using `delete[]` even if you only asked for one element.
 ### Free
 ```cpp
 // var is of type Element<my_type>
@@ -80,7 +81,47 @@ allocator->free(var);
 Be careful here, when free returns, your variable `var` has also been free in order to prevent you to try to read back data that have been freed on slaves.
 So, using `var` is undefined behaviour.
 
-###
+### Write
+```cpp
+// var is of type Element<my_type>
+// Write `n` elements pointed by `my_data`
+if (allocator->write<my_type>(var, my_data, n))
+    std::cout << "Data successfully written! << std::endl;
+else
+    std::cout << "An error occured, maybe you wrote too much? << std::endl;
+```
+
+### Map
+```cpp
+// var is of type Element<my_type>
+// Map data with an absolute value callback,
+// and map each value with a pow2 function.
+allocator
+    ->map<my_type>(var, MapID::D_ABS)
+    ->map<my_type>(var, MapID::D_POW);
+```
+
+If you want to add your own callbacks, you can do it in the `callback.h` include file.
+
+Be careful here, it will only works with primitive types: int, float, etc...
+because of the needs to know the type when applying the callback on slaves.
+
+### Reduce
+```cpp
+// var is of type Element<my_type>
+// You can provide, as last argument, the initial value of the accumulator.
+// For instance, you could start the accumulator with a value of `10.0` when
+// applying a sum.
+my_type *reduced = allocator->reduce<my_type>(var, ReduceID::D_SUM);
+```
+If you want to add your own callbacks, you can do it in the `callback.h` include file.
+
+Be careful here, same thing as for the map, it will only works with primitive types: int, float, etc... because of the needs to know the type when applying the callback on slaves.
+
+### Remember
+
+* `Allocator::free` frees the slaves data as well as the `Element<T>`.
+* You are always given data allocated with `new []`, you have to destroy them using the appropriate syntax `delete[]`.
 
 ## Build
 
@@ -96,7 +137,6 @@ You can build the project simply using `make`:
 ```sh
 my_super_sh$ cd distrubted_algorithm/
 my_super_sh$ make
-
 ```
 
 ### Windows
